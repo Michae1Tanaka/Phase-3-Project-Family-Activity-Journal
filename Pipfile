@@ -5,6 +5,14 @@ name = "pypi"
 
 [packages]
 ipdb = "*"
+prettytable = "*"
+sqlalchemy = "*"
+prompt-toolkit = "*"
+colorama = "*"
+pyinquirer = "*"
+click = "*"
+requests = "*"
+alembic = "*"
 
 [dev-packages]
 
