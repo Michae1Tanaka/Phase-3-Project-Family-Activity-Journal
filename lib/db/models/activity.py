@@ -1,6 +1,7 @@
 from helpers import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+from activity_category_association import activity_category_association
 
 
 class Activity(Base):
@@ -14,3 +15,6 @@ class Activity(Base):
     weather = Column(String)
 
     photos = relationship("Photo", back_populates="activity")
+    categories = relationship(
+        "Category", secondary=activity_category_association, back_populates="activities"
+    )

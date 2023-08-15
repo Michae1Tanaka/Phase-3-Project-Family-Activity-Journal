@@ -1,5 +1,7 @@
 from helpers import Base
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+from activity_category_association import activity_category_association
 
 
 class Category(Base):
@@ -7,3 +9,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     category_name = Column(String)
+
+    activities = relationship(
+        "Activity", secondary=activity_category_association, back_populates="categories"
+    )
