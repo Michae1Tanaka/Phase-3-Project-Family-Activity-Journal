@@ -8,7 +8,7 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 Base = declarative_base(metadata=metadata)
-engine = create_engine("sqlite:///")
+engine = create_engine("sqlite:///family_journal.db")
 
 Session = sessionmaker(bind=engine)
 session = Session()
