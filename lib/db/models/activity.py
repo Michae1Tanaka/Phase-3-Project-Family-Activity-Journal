@@ -18,3 +18,12 @@ class Activity(Base):
     categories = relationship(
         "Category", secondary=activity_category_association, back_populates="activities"
     )
+
+    def __repr__(self):
+        return (
+            f"<Activity {self.name}> \n"
+            + f"<Description: {self.description}> \n"
+            + f"<Notes: {self.notes}> \n"
+            + f"<Location: {self.location}> \n"
+            + f"<Weather: {self.weather}> \n"
+        )
