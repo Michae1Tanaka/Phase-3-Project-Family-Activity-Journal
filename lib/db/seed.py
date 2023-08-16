@@ -10,30 +10,31 @@ from .models.activity_category_association import activity_category
 fake = Faker()
 session = Session()
 
-weather_options = ["cloudy", "sunny", "rainy", "snowy"]
-
 
 def delete_records():
     session.query(Photo).delete()
     session.query(Activity).delete()
+    session.query(Category).delete()
 
 
 def create_photos():
     photos = []
-    for _ in range(10):
+    for _ in range(60):
         photo = Photo(
             photo_description=fake.paragraph(nb_sentences=1),
             url=fake.image_url(),
-            activity_id=rc(range(10)),
+            activity=rc(activities),
         )
-        session.add(photo)
-        session.commit()
         photos.append(photo)
+    session.add_all(photos)
+    session.commit()
     return photos
 
 
 def create_activities():
+    weather_options = ["cloudy", "sunny", "rainy", "snowy"]
     activities = []
+
     for _ in range(30):
         activity = Activity(
             name=fake.paragraph(nb_sentences=1),
@@ -42,13 +43,25 @@ def create_activities():
             location=fake.city() + ", " + fake.state(),
             weather=rc(weather_options),
         )
-        session.add(activity)
-        session.commit()
         activities.append(activity)
+    session.add_all(activities)
+    session.commit()
     return activities
+
+
+def create_categories():
+    category_names = ["Beach", "Outdoors", "Educational", "Park", "Theme Park"]
+    categories = [Category(category_name=name) for name in category_names]
+
+    session.add_all(categories)
+    session.commit()
+    return categories
 
 
 if __name__ == "__main__":
     delete_records()
-    photos = create_photos()
     activities = create_activities()
+    photos = create_photos()
+    category = create_categories()
+
+    session.close()
