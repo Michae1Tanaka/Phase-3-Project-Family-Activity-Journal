@@ -9,3 +9,13 @@ from .models.category import Category
 from .models.activity_category_association import activity_category_association
 
 fake = Faker()
+
+if __name__ == "__main__":
+    w = Activity()
+    x = Photo()
+    y = Category()
+    z = activity_category_association
+    print(x)
+    print(w)
+    print(y)
+    print(z)
