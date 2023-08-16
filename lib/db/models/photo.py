@@ -1,4 +1,4 @@
-from helpers import Base
+from lib.helpers.database_utils import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, backref
 

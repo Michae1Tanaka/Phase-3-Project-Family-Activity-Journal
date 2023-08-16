@@ -1,7 +1,7 @@
-from helpers import Base
+from lib.helpers.database_utils import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from activity_category_association import activity_category_association
+from lib.db.models.activity_category_association import activity_category_association
 
 
 class Activity(Base):
