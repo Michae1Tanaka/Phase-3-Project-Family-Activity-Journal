@@ -13,6 +13,7 @@ pyinquirer = "*"
 click = "*"
 requests = "*"
 alembic = "*"
+faker = "*"
 
 [dev-packages]
 
