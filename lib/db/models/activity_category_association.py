@@ -4,7 +4,7 @@ from lib.helpers.database_utils import Base
 metadata = MetaData()
 
 
-activity_category_association = Table(
+activity_category = Table(
     "activity_category_association",
     Base.metadata,
     Column("activity_id", Integer, ForeignKey("activities.id")),

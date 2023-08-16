@@ -1,7 +1,7 @@
 from ...helpers.database_utils import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from lib.db.models.activity_category_association import activity_category_association
+from lib.db.models.activity_category_association import activity_category
 
 
 class Activity(Base):
@@ -16,7 +16,7 @@ class Activity(Base):
 
     photos = relationship("Photo", back_populates="activity")
     categories = relationship(
-        "Category", secondary=activity_category_association, back_populates="activities"
+        "Category", secondary=activity_category, back_populates="activities"
     )
 
     def __repr__(self):
