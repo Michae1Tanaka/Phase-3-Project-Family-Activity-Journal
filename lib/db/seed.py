@@ -11,6 +11,10 @@ fake = Faker()
 session = Session()
 
 
+def delete_records():
+    session.query(Photo).delete()
+
+
 def create_photos():
     photos = []
     for i in range(10):
@@ -26,4 +30,5 @@ def create_photos():
 
 
 if __name__ == "__main__":
+    delete_records()
     photos = create_photos()
