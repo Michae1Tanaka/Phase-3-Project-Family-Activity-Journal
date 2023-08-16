@@ -15,7 +15,7 @@ class Photo(Base):
 
     def __repr__(self):
         return (
-            f"<Photo {self.photo_description}\n"
-            + f"<URL: {self.url}\n"
-            + f"<Activity ID: {self.activity_id}\n"
+            f"<Photo {self.photo_description}>\n"
+            + f"<URL: {self.url}>\n"
+            + f"<Activity ID: {self.activity_id}>\n"
         )

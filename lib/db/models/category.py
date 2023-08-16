@@ -13,3 +13,6 @@ class Category(Base):
     activities = relationship(
         "Activity", secondary=activity_category_association, back_populates="categories"
     )
+
+    def __repr__(self):
+        return f"<Category {self.category_name}>"
