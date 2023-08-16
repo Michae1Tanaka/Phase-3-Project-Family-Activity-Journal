@@ -10,4 +10,4 @@ class Photo(Base):
     url = Column(String())
 
     activity_id = Column(Integer(), ForeignKey("activities.id"))
-    activity = relationship("Activity", back_populates="photo")
+    activity = relationship("Activity", back_populates="photos")
