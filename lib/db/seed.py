@@ -15,15 +15,16 @@ def delete_records():
     session.query(Photo).delete()
     session.query(Activity).delete()
     session.query(Category).delete()
+    session.query(activity_category).delete()
 
 
-def create_photos():
+def create_photos(activities):
     photos = []
     for _ in range(60):
         photo = Photo(
             photo_description=fake.paragraph(nb_sentences=1),
             url=fake.image_url(),
-            activity=rc(activities),
+            activity_id=rc(activities).id,
         )
         photos.append(photo)
     session.add_all(photos)
@@ -58,10 +59,19 @@ def create_categories():
     return categories
 
 
+def create_activity_category(activities, categories):
+    for _ in range(len(activities)):
+        activity = rc(activities)
+        category = rc(categories)
+        activity.categories.append(category)
+        session.add(activity)
+        session.commit()
+
+
 if __name__ == "__main__":
     delete_records()
     activities = create_activities()
-    photos = create_photos()
-    category = create_categories()
-
+    photos = create_photos(activities)
+    categories = create_categories()
+    create_activity_category(activities, categories)
     session.close()
