@@ -1,8 +1,8 @@
-"""creates tables: activities, categories, photos, and activity_category
+"""create activities, categories, photos, and activities_categories tables
 
-Revision ID: 9317e20b9dc7
+Revision ID: afd99b30b7fe
 Revises: b35d487a07cb
-Create Date: 2023-08-15 22:30:46.237108
+Create Date: 2023-08-17 22:07:57.609526
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9317e20b9dc7'
+revision: str = 'afd99b30b7fe'
 down_revision: Union[str, None] = 'b35d487a07cb'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,6 +27,7 @@ def upgrade() -> None:
     sa.Column('notes', sa.String(), nullable=True),
     sa.Column('location', sa.String(), nullable=True),
     sa.Column('weather', sa.String(), nullable=True),
+    sa.Column('date', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('categories',

@@ -6,14 +6,14 @@
 - [ ] A database created and modified with SQLAlchemy ORM with 2 related tables.
 - [ ] A well-maintained virtual environment using Pipenv.
 - [ ] Proper package structure in your application.
-- [ ] Use of lists
+- [ x ] Use of lists
 - [ ] Use of dicts.
 
 # Stretch Goals
 
 - [ ] A database created and modified with SQLAlchemy ORM with 3+ related tables.
-- [ ] Use of many-to-many relationships with SQLAlchemy ORM.
-- [ ] Use of Ranges
+- [ x ] Use of many-to-many relationships with SQLAlchemy ORM.
+- [ x ] Use of Ranges
 - [ ] Use of Tuples
 
 # CRUD
@@ -62,28 +62,29 @@
 
 ## Activity
 
-- [ ] ActivityID Integer() primary_key
-- [ ] ActivityName String()
-- [ ] ActivityDescription String()
-- [ ] Notes String() (note for the next time user goes to this activity)
-- [ ] Location String()
+- [ x ] ActivityID Integer() primary_key
+- [ x ] ActivityName String()
+- [ x ] ActivityDescription String()
+- [ x ] Notes String() (note for the next time user goes to this activity)
+- [ x ] Location String()
 - [ ] Weather String() OpenWeatherMap api ?
 
 ## Photos One-to-Many Activity<>Photos
 
-- [ ] PhotoID Integer() primary_key
-- [ ] ActivityID Integer() ForeignKey
-- [ ] PhotoURL String()
+- [ x ] PhotoID Integer() primary_key
+- [ x ] ActivityID Integer() ForeignKey
+- [ x ] PhotoURL String()
+- [ x ] Photo_description String()
 
 ## Category
 
-- [ ] CategoryID Integer() primary_key
-- [ ] Category String()
+- [ x ] CategoryID Integer() primary_key
+- [ x ] Category String()
 
 ## ActivityCategory Many-to-Many Activity<>Category
 
-- [ ] ActivityID Integer() ForeignKey
-- [ ] CategoryID Integer() ForeignKey
+- [ x ] ActivityID Integer() ForeignKey
+- [ x ] CategoryID Integer() ForeignKey
 
 # Imports
 

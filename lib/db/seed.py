@@ -42,6 +42,7 @@ def create_activities():
             notes=fake.paragraph(nb_sentences=1),
             location=fake.city() + ", " + fake.state(),
             weather=rc(weather_options),
+            date=fake.date(),
         )
         activities.append(activity)
     session.add_all(activities)
