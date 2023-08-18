@@ -1,7 +1,6 @@
 from faker import Faker
-import random
 from random import choice as rc
-from ..helpers.database_utils import Session, engine
+from ..helpers.database_utils import Session
 from .models.activity import Activity
 from .models.photo import Photo
 from .models.category import Category
