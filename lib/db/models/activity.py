@@ -9,7 +9,7 @@ class Activity(Base):
     __tablename__ = "activities"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    _name = Column(String)
     description = Column(String)
     notes = Column(String)
     location = Column(String)
@@ -20,6 +20,17 @@ class Activity(Base):
     categories = relationship(
         "Category", secondary=activity_category, back_populates="activities"
     )
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str):
+            self._name = name
+        else:
+            raise Exception("Name must be a string.")
 
     def __repr__(self):
         date_split = self.date.split("-")
