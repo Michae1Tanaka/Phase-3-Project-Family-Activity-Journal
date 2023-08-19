@@ -21,7 +21,7 @@ def create_photos(activities):
     photos = []
     for _ in range(60):
         photo = Photo(
-            photo_description=fake.paragraph(nb_sentences=1),
+            _photo_description=fake.paragraph(nb_sentences=1),
             url=fake.image_url(),
             activity_id=rc(activities).id,
         )
