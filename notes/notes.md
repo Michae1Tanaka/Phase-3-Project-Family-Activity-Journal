@@ -20,8 +20,8 @@
 
 ## Create
 
-- [ ] As a user, I want to add a new family activity.
-      Method: add_activity()
+- [ x ] As a user, I want to add a new family activity.
+  Method: add_activity()
 - [ ] As a user, I want to attach photos to an activity to remember our moments.
       Method: add_photos_to_activity()
 - [ ] As a user, I want to create a new category to add the tuple filled with category.

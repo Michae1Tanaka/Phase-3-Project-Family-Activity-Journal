@@ -158,6 +158,11 @@ class Activity(Base):
         if weather is not None:
             self.weather = weather
 
+    @classmethod
+    def get_all_activities(cls, session):
+        all_activities = session.query(cls).all()
+        return all_activities
+
     def __repr__(self):
         formatted_date = f"{self._date.month}-{self._date.day}-{self._date.year}"
 
