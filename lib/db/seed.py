@@ -32,16 +32,26 @@ def create_photos(activities):
 
 
 def create_activities():
-    weather_options = ["cloudy", "sunny", "rainy", "snowy"]
+    weather_conditions = (
+        "Clear",
+        "Cloudy",
+        "Rainy",
+        "Snowy",
+        "Windy",
+        "Foggy",
+        "Hot",
+        "Cold",
+        "Mild",
+    )
     activities = []
 
     for _ in range(30):
         activity = Activity(
-            name=fake.paragraph(nb_sentences=1),
-            description=fake.paragraph(nb_sentences=1),
-            notes=fake.paragraph(nb_sentences=1),
-            location=fake.city() + ", " + fake.state(),
-            weather=rc(weather_options),
+            _name=fake.paragraph(nb_sentences=1),
+            _description=fake.paragraph(nb_sentences=1),
+            _notes=fake.paragraph(nb_sentences=1),
+            _location=fake.city() + ", " + fake.state(),
+            weather=rc(weather_conditions),
             date=fake.date(),
         )
         activities.append(activity)
