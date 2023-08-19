@@ -62,7 +62,7 @@ def create_activities():
 
 def create_categories():
     category_names = ["Beach", "Outdoors", "Educational", "Park", "Theme Park"]
-    categories = [Category(category_name=name) for name in category_names]
+    categories = [Category(_category_name=name) for name in category_names]
 
     session.add_all(categories)
     session.commit()

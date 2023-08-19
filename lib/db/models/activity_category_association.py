@@ -5,7 +5,7 @@ metadata = MetaData()
 
 
 activity_category = Table(
-    "activity_category_association",
+    "activity_category",
     Base.metadata,
     Column("activity_id", Integer, ForeignKey("activities.id")),
     Column("category_id", Integer, ForeignKey("categories.id")),
