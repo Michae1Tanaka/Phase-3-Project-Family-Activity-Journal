@@ -14,7 +14,7 @@ class Activity(Base):
     _notes = Column("notes", String)
     _location = Column("location", String)
     _weather = Column("weather", String)
-    date = Column(String)
+    _date = Column("date", String)
 
     photos = relationship("Photo", back_populates="activity")
     categories = relationship(
@@ -103,6 +103,25 @@ class Activity(Base):
             raise Exception(
                 "Weather must be 'Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild' "
             )
+
+    @property
+    def date(self):
+        return self._date
+
+    @date.setter
+    def date(self, date_str):
+        if self._is_valid_date(date_str):
+            self._date = date_str
+        else:
+            raise Exception("Invalid date format. It must be 'YYYY-MM-DD")
+
+    @staticmethod
+    def _is_valid_date(date_str):
+        try:
+            date.fromisoformat(date_str)
+            return True
+        except ValueError:
+            return False
 
     @classmethod
     def add_activity(cls, session, name, description, notes, location, date, weather):
