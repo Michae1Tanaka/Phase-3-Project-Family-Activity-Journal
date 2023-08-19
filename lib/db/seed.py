@@ -19,10 +19,11 @@ def delete_records():
 
 def create_photos(activities):
     photos = []
+    allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".heic"]
     for _ in range(60):
         photo = Photo(
             _photo_description=fake.paragraph(nb_sentences=1),
-            url=fake.image_url(),
+            _url=fake.image_url() + rc(allowed_extensions),
             activity_id=rc(activities).id,
         )
         photos.append(photo)

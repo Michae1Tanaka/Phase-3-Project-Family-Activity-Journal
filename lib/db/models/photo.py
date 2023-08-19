@@ -8,7 +8,7 @@ class Photo(Base):
 
     id = Column(Integer(), primary_key=True)
     _photo_description = Column("photo_description", String())
-    url = Column(String())
+    _url = Column("url", String())
 
     activity_id = Column(Integer(), ForeignKey("activities.id"))
     activity = relationship("Activity", back_populates="photos")
@@ -25,6 +25,25 @@ class Photo(Base):
             raise Exception(
                 "The photo description must be a string and in between 0 and 129 characters."
             )
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, photo_url):
+        if isinstance(photo_url, str) and self.is_valid_image(photo_url):
+            self._url = photo_url
+        else:
+            raise Exception(
+                "Photo url must end in either .jpeg, .png, .pdf, .jpg, or .heic and must be a string."
+            )
+
+    @staticmethod
+    def is_valid_image(source):
+        allowed_extensions = ["jpeg", "png", "pdf", "jpg", "heic"]
+        extension = source.split(".")[-1]
+        return extension.lower() in allowed_extensions
 
     def __repr__(self):
         return (
