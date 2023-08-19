@@ -30,7 +30,9 @@ class Activity(Base):
         if isinstance(name, str) and 0 < len(name) < 64:
             self._name = name
         else:
-            raise Exception("Name must be a string.")
+            raise Exception(
+                "The activity name must be a string and in between 0 and 65 characters."
+            )
 
     @property
     def description(self):
@@ -41,7 +43,22 @@ class Activity(Base):
         if isinstance(activity_description, str) and 0 < len(activity_description) < 64:
             self._description = activity_description
         else:
-            raise Exception("Description must be a string")
+            raise Exception(
+                "A description must be a string and in between 0 and 65 characters."
+            )
+
+    @property
+    def notes(self):
+        return self._notes
+
+    @notes.setter
+    def notes(self, new_note):
+        if isinstance(new_note, str) and 0 < len(new_note) < 128:
+            self._description = new_note
+        else:
+            raise Exception(
+                "A note must be a string and in between 0 and 129 characters."
+            )
 
     @classmethod
     def add_activity(cls, session, name, description, notes, location, date, weather):
