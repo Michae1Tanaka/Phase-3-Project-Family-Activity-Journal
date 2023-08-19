@@ -1,5 +1,5 @@
 from ...helpers.database_utils import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.orm import relationship
 from lib.db.models.activity_category_association import activity_category
 from datetime import date
@@ -14,7 +14,7 @@ class Activity(Base):
     _notes = Column("notes", String)
     _location = Column("location", String)
     _weather = Column("weather", String)
-    _date = Column("date", String)
+    _date = Column("date", Date)
 
     photos = relationship("Photo", back_populates="activity")
     categories = relationship(
@@ -27,7 +27,7 @@ class Activity(Base):
 
     @name.setter
     def name(self, name):
-        if isinstance(name, str) and 0 < len(name) <= 129:
+        if isinstance(name, str) and 0 < len(name) <= 128:
             self._name = name
         else:
             raise Exception(
@@ -111,7 +111,7 @@ class Activity(Base):
     @date.setter
     def date(self, date_str):
         if self._is_valid_date(date_str):
-            self._date = date_str
+            self._date = date.fromisoformat(date_str)
         else:
             raise Exception("Invalid date format. It must be 'YYYY-MM-DD")
 
@@ -134,11 +134,33 @@ class Activity(Base):
             weather=weather,
         )
         session.add(new_activity)
-        session.commit()
+        return new_activity
+
+    def update_activity(
+        self,
+        name=None,
+        description=None,
+        notes=None,
+        location=None,
+        date=None,
+        weather=None,
+    ):
+        if name is not None:
+            self.name = name
+        if description is not None:
+            self.description = description
+        if notes is not None:
+            self.notes = notes
+        if location is not None:
+            self.location = location
+        if date is not None:
+            self.date = date
+        if weather is not None:
+            self.weather = weather
 
     def __repr__(self):
-        date_split = self.date.split("-")
-        formatted_date = f"{date_split[1]}-{date_split[2]}-{date_split[0]}"
+        formatted_date = f"{self._date.month}-{self._date.day}-{self._date.year}"
+
         return (
             f"<Activity {self.name}> \n"
             + f"<Description: {self.description}> \n"

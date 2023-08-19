@@ -67,7 +67,7 @@
 - [ x ] ActivityDescription String()
 - [ x ] Notes String() (note for the next time user goes to this activity)
 - [ x ] Location String()
-- [ ] Weather String() OpenWeatherMap api ?
+- [ x ] Weather String()
 
 ## Photos One-to-Many Activity<>Photos
 
