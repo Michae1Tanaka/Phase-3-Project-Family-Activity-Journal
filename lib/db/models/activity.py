@@ -10,8 +10,8 @@ class Activity(Base):
 
     id = Column(Integer, primary_key=True)
     _name = Column(String)
-    description = Column(String)
-    notes = Column(String)
+    _description = Column(String)
+    _notes = Column(String)
     location = Column(String)
     weather = Column(String)
     date = Column(String)
@@ -27,10 +27,34 @@ class Activity(Base):
 
     @name.setter
     def name(self, name):
-        if isinstance(name, str):
+        if isinstance(name, str) and 0 < len(name) < 64:
             self._name = name
         else:
             raise Exception("Name must be a string.")
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, activity_description):
+        if isinstance(activity_description, str) and 0 < len(activity_description) < 64:
+            self._description = activity_description
+        else:
+            raise Exception("Description must be a string")
+
+    @classmethod
+    def add_activity(cls, session, name, description, notes, location, date, weather):
+        new_activity = Activity(
+            name=name,
+            description=description,
+            notes=notes,
+            location=location,
+            date=date,
+            weather=weather,
+        )
+        session.add(new_activity)
+        session.commit()
 
     def __repr__(self):
         date_split = self.date.split("-")
