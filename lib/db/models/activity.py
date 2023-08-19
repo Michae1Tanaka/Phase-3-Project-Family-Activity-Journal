@@ -13,7 +13,7 @@ class Activity(Base):
     _description = Column("description", String)
     _notes = Column("notes", String)
     _location = Column("location", String)
-    weather = Column(String)
+    _weather = Column("weather", String)
     date = Column(String)
 
     photos = relationship("Photo", back_populates="activity")
@@ -78,6 +78,30 @@ class Activity(Base):
         else:
             raise Exception(
                 "The location must be written as a string, between 0 and 129 characters, and typically follow formats such as 'City, Region, Country' or just 'City, Country'. Please adjust based on your specific location."
+            )
+
+    @property
+    def weather(self):
+        return self._weather
+
+    @weather.setter
+    def weather(self, weather):
+        weather_conditions = (
+            "Clear",
+            "Cloudy",
+            "Rainy",
+            "Snowy",
+            "Windy",
+            "Foggy",
+            "Hot",
+            "Cold",
+            "Mild",
+        )
+        if weather in weather_conditions:
+            self._weather = weather
+        else:
+            raise Exception(
+                "Weather must be 'Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild' "
             )
 
     @classmethod
