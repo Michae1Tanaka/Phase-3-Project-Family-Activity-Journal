@@ -46,7 +46,7 @@ def create_activities():
     )
     activities = []
 
-    for _ in range(30):
+    for _ in range(47):
         activity = Activity(
             _name=fake.paragraph(nb_sentences=1),
             _description=fake.paragraph(nb_sentences=1),

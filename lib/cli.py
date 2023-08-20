@@ -4,10 +4,12 @@ from .db.models.photo import Photo
 from .db.models.activity_category_association import activity_category
 from .helpers.database_utils import Session
 import time
+from prettytable import PrettyTable
+import os
 
+table = PrettyTable()
 session = Session()
 current_page = None
-last_page = None
 
 
 def start():
@@ -27,14 +29,12 @@ def main_menu():
         clear_terminal()
         exit()
     elif menu_option in ["1", "2", "3"]:
-        global last_page
-        last_page = main_menu
-        if int(menu_option) == 1:
+        if menu_option == "1":
             activities_menu()
-        elif int(menu_option) == 2:
+        elif menu_option == "2":
             categories_menu()
             pass
-        elif int(menu_option) == 3:
+        elif menu_option == "3":
             # view_table() or view_photos()
             pass
     else:
@@ -48,31 +48,82 @@ def activities_menu():
     clear_terminal()
     print("Activities Menu:\n")
     print(
-        "Would you like to:\n1: Create an activity\n2: Update an activity\n3: Delete an activity?"
+        "Would you like to:\n1: View activities?\n2: Create an activity?\n3: Update an activity?\n4: Delete an activity?"
     )
-    activity_option = input("Type 1, 2, 3, exit, or back : ")
+    activity_option = input("Type 1, 2, 3, 4, exit, or back : ")
     if activity_option.lower() == "exit":
         clear_terminal()
         exit()
     elif activity_option.lower() == "back":
         clear_terminal()
-        back()
-    elif activity_option in ["1", "2", "3"]:
+        main_menu()
+    elif activity_option in ["1", "2", "3", "4"]:
         global last_page
         last_page = activities_menu
-        activity_option = int(activity_option)
-        if activity_option == 1:
+        if activity_option == "1":
+            view_activities()
+        elif activity_option == "2":
             # create_activity()
             pass
-        elif activity_option == 2:
+        elif activity_option == "3":
             # update_activity()
             pass
-        elif activity_option == 3:
+        elif activity_option == "4":
             # delete_activity()
             pass
     else:
         multi_choice_error()
         activities_menu()
+
+
+def view_activities():
+    global last_page
+    last_page = view_activities
+    start = 0
+    end = 10
+    total_amount_of_activities = len(Activity.get_all_activities(session))
+
+    # Display the initial table
+    display_table(start, end)
+
+    loop = True
+    while loop:
+        if end >= total_amount_of_activities:
+            # Prompt for 'previous' since 'next' is not available
+            user_input_table = input(
+                "Type 'p' for previous, 'back', or 'exit' to quit: "
+            )
+        elif start == 0:
+            user_input_table = input(
+                "Type 'n' for next to see the next 10 activities, 'back', or 'exit' to quit: "
+            )
+        else:
+            user_input_table = input(
+                "Type 'n' for next to see the next 10 activities, 'p' for previous to see previous 10, 'back', or 'exit' to quit: "
+            )
+
+        if user_input_table.lower() == "n" and end < total_amount_of_activities:
+            start += 10
+            end += 10
+            if end > total_amount_of_activities:
+                end = total_amount_of_activities
+            display_table(start, end)
+        elif user_input_table == "p" and start > 0:
+            start -= 10
+            end = start + 10
+            display_table(start, end)
+        elif user_input_table == "back":
+            loop = False
+            clear_terminal()
+            activities_menu()
+        elif user_input_table.lower() == "exit":
+            clear_terminal()
+            loop = False
+            exit()
+        else:
+            clear_terminal()
+            multi_choice_error()
+            display_table(start, end)
 
 
 def categories_menu():
@@ -87,9 +138,9 @@ def categories_menu():
     if category_option.lower() == "exit":
         clear_terminal()
         exit()
-    if category_option.lower() == "back":
+    elif category_option.lower() == "back":
         clear_terminal()
-        back()
+        main_menu()
     elif category_option in ["1", "2", "3"]:
         category_option = int(category_option)
         if category_option == "1":
@@ -104,6 +155,40 @@ def categories_menu():
     else:
         multi_choice_error()
         categories_menu()
+
+
+# def
+
+
+def display_table(start, end):
+    activities = Activity.get_all_activities(session)
+    activity_ids = [activity.id for activity in activities[start:end]]
+    activity_names = [activity.name for activity in activities[start:end]]
+    activity_weather = [activity.weather for activity in activities[start:end]]
+    activity_notes = [activity.notes for activity in activities[start:end]]
+    activity_locations = [activity.location for activity in activities[start:end]]
+    activity_dates = [
+        f"{activity.date.month}-{activity.date.day}-{activity.date.year}"
+        for activity in activities[start:end]
+    ]
+
+    table = PrettyTable()
+    table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
+
+    for id, activity, location, weather, notes, date in zip(
+        activity_ids,
+        activity_names,
+        activity_locations,
+        activity_weather,
+        activity_notes,
+        activity_dates,
+    ):
+        table.add_row([id, activity, location, weather, notes, date])
+
+    clear_terminal()
+    width = os.get_terminal_size().columns
+    print("Activities Table".center(width))
+    print(table)
 
 
 def exit():
@@ -130,13 +215,9 @@ def clear_terminal():
 
 def multi_choice_error():
     clear_terminal()
-    print("Input must be a number that corresponds to an option,  exit, or back.")
+    print("Input must correspond to an option.")
     time.sleep(3)
     clear_terminal()
-
-
-def back():
-    last_page()
 
 
 def y_n_error():
