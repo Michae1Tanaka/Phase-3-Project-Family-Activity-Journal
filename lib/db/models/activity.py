@@ -125,7 +125,7 @@ class Activity(Base):
             return False
 
     @classmethod
-    def add_activity(cls, session, name, description, notes, location, date, weather):
+    def add_activity(cls, name, description, notes, location, date, weather):
         new_activity = Activity(
             name=name,
             description=description,
@@ -134,7 +134,6 @@ class Activity(Base):
             date=date,
             weather=weather,
         )
-        session.add(new_activity)
         return new_activity
 
     def update_activity(

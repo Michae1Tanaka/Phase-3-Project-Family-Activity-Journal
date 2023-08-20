@@ -39,6 +39,13 @@ class Photo(Base):
                 "Photo url must end in either .jpeg, .png, .pdf, .jpg, or .heic and must be a string."
             )
 
+    @classmethod
+    def add_photo(cls, photo_description, url, activity_id):
+        new_photo = Photo(
+            photo_description=photo_description, url=url, activity_id=activity_id
+        )
+        return new_photo
+
     @staticmethod
     def is_valid_image(source):
         allowed_extensions = ["jpeg", "png", "pdf", "jpg", "heic"]

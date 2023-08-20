@@ -171,8 +171,7 @@ def create_activity():
                             print("Activity date: " + activity_instance["date"])
                             confirmation = input("y/n : ")
                             if confirmation == "y":
-                                Activity.add_activity(
-                                    session=session,
+                                new_activity = Activity.add_activity(
                                     name=activity_instance["name"],
                                     description=activity_instance["description"],
                                     notes=activity_instance["notes"],
@@ -180,10 +179,16 @@ def create_activity():
                                     weather=activity_instance["weather"],
                                     date=activity_instance["date"],
                                 )
+                                session.add(new_activity)
                                 session.commit()
                                 print(
                                     "Activity has been added. Would you like to add some photos as well?"
                                 )
+                                add_photo = input("y/n : ")
+                                if add_photo == "y":
+                                    pass
+                                if add_photo == "n":
+                                    main_menu()
                             elif confirmation == "n":
                                 activities_menu()
                             else:
