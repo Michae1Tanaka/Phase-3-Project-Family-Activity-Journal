@@ -6,14 +6,16 @@ from .helpers.database_utils import Session
 import time
 from prettytable import PrettyTable
 import os
+from datetime import date
 
 table = PrettyTable()
 session = Session()
 current_page = None
+width = os.get_terminal_size().columns
 
 
 def start():
-    print("\n" * 64)
+    clear_terminal()
     print("Hello and Welcome to your Family Activity Journal!\n")
     time.sleep(1)
     main_menu()
@@ -58,12 +60,10 @@ def activities_menu():
         clear_terminal()
         main_menu()
     elif activity_option in ["1", "2", "3", "4"]:
-        global last_page
-        last_page = activities_menu
         if activity_option == "1":
             view_activities()
         elif activity_option == "2":
-            # create_activity()
+            create_activity()
             pass
         elif activity_option == "3":
             # update_activity()
@@ -77,19 +77,17 @@ def activities_menu():
 
 
 def view_activities():
-    global last_page
-    last_page = view_activities
+    global current_page
+    current_page = view_activities
     start = 0
     end = 10
     total_amount_of_activities = len(Activity.get_all_activities(session))
 
-    # Display the initial table
     display_table(start, end)
 
     loop = True
     while loop:
         if end >= total_amount_of_activities:
-            # Prompt for 'previous' since 'next' is not available
             user_input_table = input(
                 "Type 'p' for previous, 'back', or 'exit' to quit: "
             )
@@ -126,6 +124,110 @@ def view_activities():
             display_table(start, end)
 
 
+def create_activity():
+    clear_terminal()
+    print("Create Activity Menu".center(width))
+    activity_instance = dict()
+    activity_name = input("Input activity name: ")
+    if 0 < len(activity_name) <= 68:
+        activity_instance["name"] = activity_name
+        activity_description = input("Input activity description: ")
+        if 0 < len(activity_description) <= 68:
+            activity_instance["description"] = activity_description
+            activity_notes = input("Input activity note: ")
+            if 0 < len(activity_notes) <= 68:
+                activity_instance["notes"] = activity_notes
+                activity_location = input("Input activity location: ")
+                if 0 < len(activity_location) and 0 < activity_location.count(",") <= 2:
+                    activity_instance["location"] = activity_location
+                    activity_weather = input(
+                        'Input activity weather condition ["Clear", "Cloudy", "Rainy", "Snowy", "Windy", "Foggy", "Hot", "Cold", "Mild", "Sunny"]: '
+                    )
+                    if activity_weather in (
+                        "Clear",
+                        "Cloudy",
+                        "Rainy",
+                        "Snowy",
+                        "Windy",
+                        "Foggy",
+                        "Hot",
+                        "Cold",
+                        "Mild",
+                        "Sunny",
+                    ):
+                        activity_instance["weather"] = activity_weather
+                        activity_date = input("Input activity date (YYYY-MM-DD): ")
+                        if is_valid_date(activity_date):
+                            activity_instance["date"] = activity_date
+                            print("Does this activity information look correct?")
+                            print("Activity name: " + activity_instance["name"])
+                            print(
+                                "Activity description: "
+                                + activity_instance["description"]
+                            )
+                            print("Activity note: " + activity_instance["notes"])
+                            print("Activity location: " + activity_instance["location"])
+                            print("Activity weather: " + activity_instance["weather"])
+                            print("Activity date: " + activity_instance["date"])
+                            confirmation = input("y/n : ")
+                            if confirmation == "y":
+                                Activity.add_activity(
+                                    session=session,
+                                    name=activity_instance["name"],
+                                    description=activity_instance["description"],
+                                    notes=activity_instance["notes"],
+                                    location=activity_instance["location"],
+                                    weather=activity_instance["weather"],
+                                    date=activity_instance["date"],
+                                )
+                                session.commit()
+                                print(
+                                    "Activity has been added. Would you like to add some photos as well?"
+                                )
+                            elif confirmation == "n":
+                                activities_menu()
+                            else:
+                                clear_terminal()
+                                y_n_error()
+                                create_activity()
+                        else:
+                            clear_terminal()
+                            print(
+                                "The activity date must be in the format of YYYY-MM-DD"
+                            )
+                            time.sleep(3)
+                            create_activity()
+                    else:
+                        clear_terminal()
+                        print(
+                            "The weather must be either 'Clear, 'Cloudy', 'Rainy', 'Snowy','Windy','Foggy','Hot','Cold','Mild', or 'Sunny'."
+                        )
+                        time.sleep(3)
+                        create_activity()
+                else:
+                    clear_terminal()
+                    print(
+                        "The location must be in the format 'City,State' or 'City,Region,Country"
+                    )
+                    time.sleep(3)
+                    create_activity()
+            else:
+                clear_terminal()
+                print("The activity note must be in between 0 and 69 characters.")
+                time.sleep(3)
+                create_activity()
+        else:
+            clear_terminal()
+            print("The activity description must be between 0 and 69 characters.")
+            time.sleep(3)
+            create_activity()
+    else:
+        clear_terminal()
+        print("The activity name must be between 0 and 69 characters.")
+        time.sleep(3)
+        create_activity()
+
+
 def categories_menu():
     global current_page
     current_page = categories_menu
@@ -155,9 +257,6 @@ def categories_menu():
     else:
         multi_choice_error()
         categories_menu()
-
-
-# def
 
 
 def display_table(start, end):
@@ -226,6 +325,14 @@ def y_n_error():
     time.sleep(2)
     clear_terminal()
     exit()
+
+
+def is_valid_date(date_str):
+    try:
+        date.fromisoformat(date_str)
+        return True
+    except ValueError:
+        return False
 
 
 if __name__ == "__main__":

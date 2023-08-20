@@ -43,6 +43,7 @@ def create_activities():
         "Hot",
         "Cold",
         "Mild",
+        "Sunny",
     )
     activities = []
 

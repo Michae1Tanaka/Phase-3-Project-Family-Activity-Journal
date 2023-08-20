@@ -27,11 +27,11 @@ class Activity(Base):
 
     @name.setter
     def name(self, name):
-        if isinstance(name, str) and 0 < len(name) <= 128:
+        if isinstance(name, str) and 0 < len(name) <= 68:
             self._name = name
         else:
             raise Exception(
-                "The activity name must be a string and between 0 and 129 characters."
+                "The activity name must be a string and between 0 and 69 characters."
             )
 
     @property
@@ -42,12 +42,12 @@ class Activity(Base):
     def description(self, activity_description):
         if (
             isinstance(activity_description, str)
-            and 0 < len(activity_description) <= 128
+            and 0 < len(activity_description) <= 68
         ):
             self._description = activity_description
         else:
             raise Exception(
-                "A description must be a string and in between 0 and 129 characters."
+                "A description must be a string and in between 0 and 69 characters."
             )
 
     @property
@@ -56,11 +56,11 @@ class Activity(Base):
 
     @notes.setter
     def notes(self, new_note):
-        if isinstance(new_note, str) and 0 < len(new_note) <= 128:
+        if isinstance(new_note, str) and 0 < len(new_note) <= 68:
             self._notes = new_note
         else:
             raise Exception(
-                "A note must be a string and in between 0 and 129 characters."
+                "A note must be a string and in between 0 and 69 characters."
             )
 
     @property
@@ -71,13 +71,13 @@ class Activity(Base):
     def location(self, location):
         if (
             isinstance(location, str)
-            and 0 < len(location) <= 128
+            and 0 < len(location) <= 68
             and 0 < location.count(",") <= 2
         ):
             self._location = location
         else:
             raise Exception(
-                "The location must be written as a string, between 0 and 129 characters, and typically follow formats such as 'City, Region, Country' or just 'City, Country'. Please adjust based on your specific location."
+                "The location must be written as a string, between 0 and 69 characters, and follow the formats such as 'City, Region, Country' or just 'City, Country'."
             )
 
     @property
@@ -96,6 +96,7 @@ class Activity(Base):
             "Hot",
             "Cold",
             "Mild",
+            "Sunny",
         )
         if weather in weather_conditions:
             self._weather = weather
