@@ -10,7 +10,7 @@ from datetime import date
 
 table = PrettyTable()
 session = Session()
-current_page = None
+last_page = None
 width = os.get_terminal_size().columns
 
 
@@ -22,14 +22,13 @@ def start():
 
 
 def main_menu():
-    global current_page
-    current_page = main_menu
+    global last_page
+    last_page = main_menu
     clear_terminal()
     print("Main Menu:\n")
     print("Would you like to:\n1:View Activities\n2:View Categories\n3:View Table")
     menu_option = input("Type 1, 2 , 3, or exit: ").strip()
     if menu_option.lower() == "exit":
-        clear_terminal()
         exit()
     elif menu_option in ["1", "2", "3"]:
         if menu_option == "1":
@@ -46,19 +45,15 @@ def main_menu():
 
 
 def activities_menu():
-    global current_page
-    current_page = activities_menu
+    global last_page
+    last_page = activities_menu
     clear_terminal()
     print("Activities Menu:\n")
-    print(
-        "Would you like to:\n1: View activities?\n2: Create an activity?\n3: Update an activity?\n4: Delete an activity?"
-    )
+    print("Would you like to:\n1: View activities?\n2: Create an activity?\n3:?")
     activity_option = input("Type 1, 2, 3, 4, exit, or back : ").strip()
     if activity_option.lower() == "exit":
-        clear_terminal()
         exit()
     elif activity_option.lower() == "back":
-        clear_terminal()
         main_menu()
     elif activity_option in ["1", "2", "3", "4"]:
         if activity_option == "1":
@@ -69,17 +64,14 @@ def activities_menu():
         elif activity_option == "3":
             # add photo?
             pass
-        elif activity_option == "4":
-            #
-            pass
     else:
         multi_choice_error()
         activities_menu()
 
 
 def view_activities():
-    global current_page
-    current_page = view_activities
+    global last_page
+    last_page = view_activities
     start = 0
     end = 10
     total_amount_of_activities = len(Activity.get_all_activities(session))
@@ -106,7 +98,7 @@ def view_activities():
             activity = session.query(Activity).all()[chosen_id]
             if activity:
                 loop = False
-                update_activity_prompt(chosen_id)
+                chosen_activity(chosen_id)
             else:
                 clear_terminal()
                 print("No activity found with the specified ID.")
@@ -123,14 +115,11 @@ def view_activities():
             display_table(start, end)
         elif user_input_table.lower() == "back":
             loop = False
-            clear_terminal()
             activities_menu()
         elif user_input_table.lower() == "exit":
-            clear_terminal()
             loop = False
             exit()
         else:
-            clear_terminal()
             multi_choice_error()
             display_table(start, end)
 
@@ -210,7 +199,6 @@ def create_activity():
                                 time.sleep(3)
                                 activities_menu()
                             else:
-                                clear_terminal()
                                 y_n_error()
                                 create_activity()
                         else:
@@ -251,63 +239,86 @@ def create_activity():
         create_activity()
 
 
-def update_activity_prompt(chosen_id):
-    global current_page
-    current_page = view_activities
+def chosen_activity(chosen_id):
+    global last_page
+    last_page = chosen_activity
     activity = session.query(Activity).all()[chosen_id - 1]
     clear_terminal()
     print(f"You have selected: \n\n{activity}")
     correct_yn = input("y/n : ").strip()
     if correct_yn == "y":
         clear_terminal()
-        print(f"Updating activity: \n\n{activity}")
-
-        new_name = input("Enter new name or press enter to skip: ").strip()
-        if new_name:
-            activity.name = new_name
-
-        new_description = input(
-            "Enter new description or press enter to skip: "
+        print(
+            "Would you like to View, Update, or Delete the Activity\n\n\n\n".center(
+                width
+            )
+        )
+        view_update_delete = input(
+            "Type 'v' to view, 'u' to update, or 'd' to delete the activity: "
         ).strip()
-        if new_description:
-            activity.description = new_description
-
-        new_note = input("Enter new note or press enter to skip: ").strip()
-        if new_note:
-            activity.notes = new_note
-
-        new_location = input("Enter new location or press enter to skip: ").strip()
-        if new_location:
-            activity.location = new_location
-
-        new_weather = input(
-            "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
-        ).strip()
-        if new_weather:
-            activity.weather = new_weather
-
-        new_date = input("Enter new date or press enter to skip: ").strip()
-        if new_date:
-            activity.date = new_date
-        print(activity)
-        print("Would you like to update this activity?")
-        update_yn = input("y/n: ").strip()
-        if update_yn == "y":
-            session.commit()
-            print("Activity updated successfully!")
-            main_menu()
+        if view_update_delete.lower() == "v":
+            pass
+            # ?
+        elif view_update_delete.lower() == "u":
+            update_activity_prompt(activity.id)
+        elif view_update_delete.lower() == "d":
+            pass
+            # ?
         else:
-            clear_terminal()
-            y_n_error()
-    elif correct_yn == "n":
+            multi_choice_error()
+    if correct_yn == "n":
         view_activities()
     else:
-        print("Activity with specified ID not found.")
+        y_n_error
+
+
+def update_activity_prompt(chosen_id):
+    global last_page
+    last_page = view_activities
+    activity = session.query(Activity).all()[chosen_id - 1]
+    clear_terminal()
+    print(f"You have selected: \n\n{activity}\n")
+    new_name = input("Enter new name or press enter to skip: ").strip()
+    if new_name:
+        activity.name = new_name
+
+    new_description = input("Enter new description or press enter to skip: ").strip()
+    if new_description:
+        activity.description = new_description
+
+    new_note = input("Enter new note or press enter to skip: ").strip()
+    if new_note:
+        activity.notes = new_note
+
+    new_location = input("Enter new location or press enter to skip: ").strip()
+    if new_location:
+        activity.location = new_location
+
+    new_weather = input(
+        "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
+    ).strip()
+    if new_weather:
+        activity.weather = new_weather
+
+    new_date = input("Enter new date or press enter to skip: ").strip()
+    if new_date:
+        activity.date = new_date
+    print(activity)
+    print("Would you like to update this activity?")
+    update_yn = input("y/n: ").strip()
+    if update_yn == "y":
+        session.commit()
+        print("Activity updated successfully!")
+        main_menu()
+    if update_yn == "n":
+        view_activities()
+    else:
+        y_n_error()
 
 
 def categories_menu():
-    global current_page
-    current_page = categories_menu
+    global last_page
+    last_page = categories_menu
     clear_terminal()
     print("Categories Menu\n")
     print(
@@ -315,10 +326,8 @@ def categories_menu():
     )
     category_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if category_option.lower() == "exit":
-        clear_terminal()
         exit()
     elif category_option.lower() == "back":
-        clear_terminal()
         main_menu()
     elif category_option in ["1", "2", "3"]:
         category_option = int(category_option)
@@ -368,6 +377,7 @@ def display_table(start, end):
 
 
 def exit():
+    clear_terminal()
     print("Are you sure you want to exit?\n")
     exit_y_or_n = input("y/n: ").strip()
     if exit_y_or_n.lower() == "y":
@@ -376,8 +386,8 @@ def exit():
         clear_terminal()
     elif exit_y_or_n.lower() == "n":
         clear_terminal()
-        if current_page:
-            current_page()
+        if last_page:
+            last_page()
         else:
             main_menu()
     else:
@@ -390,18 +400,25 @@ def clear_terminal():
 
 
 def multi_choice_error():
+    global last_page
     clear_terminal()
     print("Input must correspond to an option.")
-    time.sleep(3)
-    clear_terminal()
+    time.sleep(2)
+    if last_page:
+        last_page()
+    else:
+        main_menu()
 
 
 def y_n_error():
+    global last_page
     clear_terminal()
     print("Input must be 'y' for yes or 'n' for no.")
     time.sleep(2)
-    clear_terminal()
-    exit()
+    if last_page:
+        last_page()
+    else:
+        main_menu()
 
 
 def is_valid_date(date_str):
