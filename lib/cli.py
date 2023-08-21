@@ -279,7 +279,7 @@ def view_activity(chosen_id):
     display_table(start, end)
     back_exit_or_mm = input(
         "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
-    )
+    ).strip()
     if back_exit_or_mm == "back":
         view_activities()
     elif back_exit_or_mm == "mm":
@@ -352,7 +352,7 @@ def categories_menu():
             create_category_prompt()
             pass
         elif category_option == "2":
-            # update_category
+            update_category_prompt()
             pass
         elif category_option == "3":
             # delete_category
@@ -386,7 +386,7 @@ def create_category_prompt():
             print(
                 f"Are you sure you want to create the category: {new_category.category_name}?"
             )
-            y_n_answer = input("y/n : ")
+            y_n_answer = input("y/n : ").strip()
             if y_n_answer == "y":
                 session.add(new_category)
                 session.commit()
@@ -400,6 +400,59 @@ def create_category_prompt():
                 y_n_error()
         else:
             pass
+
+
+def update_category_prompt():
+    global last_page
+    last_page = categories_menu
+    categories = session.query(Category).all()
+    clear_terminal()
+    print(
+        f"Here are your current categories: {[f'{index + 1}: {category.category_name}' for index, category in enumerate(categories)]} \n\n"
+    )
+    category_to_update = input(
+        "Please type the number corresponding to a category or 'back' to go back: "
+    ).strip()
+    if category_to_update == "back":
+        categories_menu()
+    elif int(category_to_update) in range(1, (len(categories))):
+        category_to_update = int(category_to_update)
+        category_chosen = session.query(Category).all()[category_to_update - 1]
+        clear_terminal()
+        y_n_correct = input(
+            f"Is this the category you wanted to select [{category_chosen.category_name}]? y/n  :  "
+        ).strip()
+        if y_n_correct == "y":
+            print(f"What would you like to change {category_chosen.category_name} to? ")
+            new_category_name = input("")
+            clear_terminal()
+            if 0 < len(new_category_name) < 16:
+                im_running_out_of_names_for_these_inputs = input(
+                    f"Is '{new_category_name}' correct?: y/n   "
+                ).strip()
+                if im_running_out_of_names_for_these_inputs == "y":
+                    category_chosen.category_name = new_category_name
+                    session.commit()
+                    clear_terminal()
+                    print("the Category has been updated!")
+                    time.sleep(2)
+                    main_menu()
+                elif im_running_out_of_names_for_these_inputs == "n":
+                    categories_menu()
+                else:
+                    y_n_error()
+            else:
+                print("The new category name must be in between 0 and 17 characters.")
+                time.sleep(2)
+                categories_menu()
+        elif y_n_correct == "n":
+            categories_menu()
+        else:
+            y_n_error()
+    else:
+        multi_choice_error()
+
+        pass
 
 
 def display_table(start, end):
