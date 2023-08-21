@@ -27,12 +27,12 @@ class Activity(Base):
 
     @name.setter
     def name(self, name):
-        if isinstance(name, str) and 0 < len(name) <= 68:
-            self._name = name
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string.")
+        elif not (0 < len(name) <= 64):
+            raise ValueError("Name must be in between 0 and 65 characters.")
         else:
-            raise Exception(
-                "The activity name must be a string and between 0 and 69 characters."
-            )
+            self._name = name
 
     @property
     def description(self):
@@ -40,15 +40,12 @@ class Activity(Base):
 
     @description.setter
     def description(self, activity_description):
-        if (
-            isinstance(activity_description, str)
-            and 0 < len(activity_description) <= 68
-        ):
-            self._description = activity_description
+        if not isinstance(activity_description, str):
+            raise TypeError("The description must be a string.")
+        elif not (0 < len(activity_description) <= 64):
+            raise ValueError("The description must be in between 0 and 65 characters.")
         else:
-            raise Exception(
-                "A description must be a string and in between 0 and 69 characters."
-            )
+            self._description = activity_description
 
     @property
     def notes(self):
@@ -56,12 +53,12 @@ class Activity(Base):
 
     @notes.setter
     def notes(self, new_note):
-        if isinstance(new_note, str) and 0 < len(new_note) <= 68:
-            self._notes = new_note
+        if not isinstance(new_note, str):
+            raise ValueError("The note must be a string.")
+        elif not (0 < len(new_note) <= 64):
+            raise ValueError("The not must be in between 0 and 65 characters.")
         else:
-            raise Exception(
-                "A note must be a string and in between 0 and 69 characters."
-            )
+            self._notes = new_note
 
     @property
     def location(self):
@@ -69,16 +66,13 @@ class Activity(Base):
 
     @location.setter
     def location(self, location):
-        if (
-            isinstance(location, str)
-            and 0 < len(location) <= 68
-            and 0 < location.count(",") <= 2
-        ):
-            self._location = location
-        else:
-            raise Exception(
-                "The location must be written as a string, between 0 and 69 characters, and follow the formats such as 'City, Region, Country' or just 'City, Country'."
+        if not isinstance(location, str) and 0 < len(location) <= 64:
+            raise TypeError(
+                'The location must be written in a string with the format of either "City,State" or "City,Region,Country".'
             )
+
+        else:
+            self._location = location
 
     @property
     def weather(self):
@@ -98,12 +92,12 @@ class Activity(Base):
             "Mild",
             "Sunny",
         )
-        if weather in weather_conditions:
-            self._weather = weather
-        else:
-            raise Exception(
-                "Weather must be 'Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny' "
+        if weather.title() not in weather_conditions:
+            raise ValueError(
+                'The weather must be one of the following ["Clear","Cloudy", "Rainy", "Snowy", "Windy", "Foggy", "Hot", "Cold", "Mild", "Sunny",]'
             )
+        else:
+            self._weather = weather
 
     @property
     def date(self):
@@ -123,18 +117,6 @@ class Activity(Base):
             return True
         except ValueError:
             return False
-
-    @classmethod
-    def add_activity(cls, name, description, notes, location, date, weather):
-        new_activity = Activity(
-            name=name,
-            description=description,
-            notes=notes,
-            location=location,
-            date=date,
-            weather=weather,
-        )
-        return new_activity
 
     def update_activity(
         self,
@@ -157,6 +139,18 @@ class Activity(Base):
             self.date = date
         if weather is not None:
             self.weather = weather
+
+    @classmethod
+    def add_activity(cls, name, description, notes, location, date, weather):
+        new_activity = Activity(
+            name=name,
+            description=description,
+            notes=notes,
+            location=location,
+            date=date,
+            weather=weather,
+        )
+        return new_activity
 
     @classmethod
     def get_all_activities(cls, session):
