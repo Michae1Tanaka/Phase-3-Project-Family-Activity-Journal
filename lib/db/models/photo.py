@@ -10,7 +10,7 @@ class Photo(Base):
     id = Column(Integer(), primary_key=True)
     _photo_description = Column("photo_description", String())
     _url = Column("url", String())
-    _activity_id = Column(Integer(), ForeignKey("activities.id"))
+    _activity_id = Column("activity_id", Integer(), ForeignKey("activities.id"))
 
     activity = relationship("Activity", back_populates="photos")
 
@@ -24,7 +24,7 @@ class Photo(Base):
             self._photo_description = photo_description
         else:
             raise ValueError(
-                "The photo description must be a string and in between 0 and 64 characters."
+                "The photo description must be a string and in between 0 and 65 characters."
             )
 
     @property

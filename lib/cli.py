@@ -348,9 +348,8 @@ def categories_menu():
     elif category_option.lower() == "back":
         main_menu()
     elif category_option in ["1", "2", "3"]:
-        category_option = int(category_option)
         if category_option == "1":
-            # create_category
+            create_category_prompt()
             pass
         elif category_option == "2":
             # update_category
@@ -361,6 +360,46 @@ def categories_menu():
     else:
         multi_choice_error()
         categories_menu()
+
+
+def create_category_prompt():
+    clear_terminal()
+    global last_page
+    last_page = categories_menu
+    categories = session.query(Category).all()
+    print(
+        "Here are your current categories:"
+        + f"{[category.category_name for category in categories]}\n\n"
+    )
+    category_name = input(
+        "Input the new category you would like to create or 'back' to go back to categories menu: "
+    ).strip()
+    if not 0 < len(category_name) <= 32:
+        print("The category name but be in between 0 and 33 characters.")
+        create_category_prompt()
+    elif category_name == "back":
+        categories_menu()
+    else:
+        new_category = Category.add_category(category_name=category_name)
+        if new_category:
+            clear_terminal()
+            print(
+                f"Are you sure you want to create the category: {new_category.category_name}?"
+            )
+            y_n_answer = input("y/n : ")
+            if y_n_answer == "y":
+                session.add(new_category)
+                session.commit()
+                clear_terminal()
+                print(f"You have added {new_category.category_name}!")
+                time.sleep(2)
+                main_menu()
+            elif y_n_answer == "n":
+                categories_menu()
+            else:
+                y_n_error()
+        else:
+            pass
 
 
 def display_table(start, end):
@@ -374,7 +413,6 @@ def display_table(start, end):
         f"{activity.date.month}-{activity.date.day}-{activity.date.year}"
         for activity in activities[start:end]
     ]
-
     table = PrettyTable()
     table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
 
@@ -414,7 +452,7 @@ def exit():
 
 
 def clear_terminal():
-    print("\n" * 64)
+    print("\n" * 32)
 
 
 def multi_choice_error():

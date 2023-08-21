@@ -20,14 +20,19 @@ class Category(Base):
 
     @category_name.setter
     def category_name(self, category_name):
-        if isinstance(category_name, str) and 0 < len(category_name) <= 64:
+        if isinstance(category_name, str) and 0 < len(category_name) <= 32:
             self._category_name = category_name
         elif not isinstance(category_name, str):
             raise TypeError("Category name must be a string.")
         else:
             raise ValueError(
-                "Category name must be in between the characters of 0 and 65."
+                "Category name must be in between the characters of 0 and 33."
             )
+
+    @classmethod
+    def add_category(cls, category_name):
+        new_category = Category(category_name=category_name)
+        return new_category
 
     def __repr__(self):
         return f"<Category {self.category_name}>"
