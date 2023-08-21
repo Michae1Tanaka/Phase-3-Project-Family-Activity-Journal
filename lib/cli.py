@@ -16,7 +16,7 @@ width = os.get_terminal_size().columns
 
 def start():
     clear_terminal()
-    print("Hello and Welcome to your Family Activity Journal!\n")
+    print("Hello and Welcome to your Family Activity Journal!\n".center(width))
     time.sleep(1)
     main_menu()
 
@@ -25,7 +25,7 @@ def main_menu():
     global last_page
     last_page = main_menu
     clear_terminal()
-    print("Main Menu:\n")
+    print("Main Menu:\n".center(width))
     print("Would you like to:\n1:View Activities\n2:View Categories\n3:View Table")
     menu_option = input("Type 1, 2 , 3, or exit: ").strip()
     if menu_option.lower() == "exit":
@@ -94,7 +94,7 @@ def view_activities():
             ).strip()
 
         if user_input_table.isdigit():
-            chosen_id = int(user_input_table)
+            chosen_id = int(user_input_table) - 1
             activity = session.query(Activity).all()[chosen_id]
             if activity:
                 loop = False
@@ -241,8 +241,8 @@ def create_activity():
 
 def chosen_activity(chosen_id):
     global last_page
-    last_page = chosen_activity
-    activity = session.query(Activity).all()[chosen_id - 1]
+    last_page = view_activities
+    activity = session.query(Activity).all()[chosen_id]
     clear_terminal()
     print(f"You have selected: \n\n{activity}")
     correct_yn = input("y/n : ").strip()
@@ -257,8 +257,7 @@ def chosen_activity(chosen_id):
             "Type 'v' to view, 'u' to update, or 'd' to delete the activity: "
         ).strip()
         if view_update_delete.lower() == "v":
-            pass
-            # ?
+            view_activity(chosen_id)
         elif view_update_delete.lower() == "u":
             update_activity_prompt(activity.id)
         elif view_update_delete.lower() == "d":
@@ -266,10 +265,29 @@ def chosen_activity(chosen_id):
             # ?
         else:
             multi_choice_error()
-    if correct_yn == "n":
+    elif correct_yn == "n":
         view_activities()
     else:
-        y_n_error
+        y_n_error()
+
+
+def view_activity(chosen_id):
+    start = chosen_id
+    end = chosen_id + 1
+    global last_page
+    last_page = view_activities
+    display_table(start, end)
+    back_exit_or_mm = input(
+        "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
+    )
+    if back_exit_or_mm == "back":
+        view_activities()
+    elif back_exit_or_mm == "mm":
+        main_menu()
+    elif back_exit_or_mm == "exit":
+        exit()
+    else:
+        multi_choice_error()
 
 
 def update_activity_prompt(chosen_id):
