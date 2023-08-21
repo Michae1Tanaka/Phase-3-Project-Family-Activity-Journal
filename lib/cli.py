@@ -24,9 +24,10 @@ def start():
 def main_menu():
     global current_page
     current_page = main_menu
+    clear_terminal()
     print("Main Menu:\n")
     print("Would you like to:\n1:View Activities\n2:View Categories\n3:View Table")
-    menu_option = input("Type 1, 2 , 3, or exit: ")
+    menu_option = input("Type 1, 2 , 3, or exit: ").strip()
     if menu_option.lower() == "exit":
         clear_terminal()
         exit()
@@ -37,7 +38,7 @@ def main_menu():
             categories_menu()
             pass
         elif menu_option == "3":
-            # view_table() or view_photos()
+            # photos menu
             pass
     else:
         multi_choice_error()
@@ -52,7 +53,7 @@ def activities_menu():
     print(
         "Would you like to:\n1: View activities?\n2: Create an activity?\n3: Update an activity?\n4: Delete an activity?"
     )
-    activity_option = input("Type 1, 2, 3, 4, exit, or back : ")
+    activity_option = input("Type 1, 2, 3, 4, exit, or back : ").strip()
     if activity_option.lower() == "exit":
         clear_terminal()
         exit()
@@ -66,10 +67,10 @@ def activities_menu():
             create_activity()
             pass
         elif activity_option == "3":
-            # update_activity()
+            # add photo?
             pass
         elif activity_option == "4":
-            # delete_activity()
+            #
             pass
     else:
         multi_choice_error()
@@ -89,28 +90,38 @@ def view_activities():
     while loop:
         if end >= total_amount_of_activities:
             user_input_table = input(
-                "Type 'p' for previous, 'back', or 'exit' to quit: "
-            )
+                "Type 'p' for previous, an ID to view, update, or delete an activity, 'back', or 'exit': "
+            ).strip()
         elif start == 0:
             user_input_table = input(
-                "Type 'n' for next to see the next 10 activities, 'back', or 'exit' to quit: "
-            )
+                "Type 'n' for next to see the next 10 activities, an ID to view, update, or delete an activity, 'back', or 'exit': "
+            ).strip()
         else:
             user_input_table = input(
-                "Type 'n' for next to see the next 10 activities, 'p' for previous to see previous 10, 'back', or 'exit' to quit: "
-            )
+                "Type 'n' for next to see the next 10 activities, 'p' for previous to see previous 10, an ID to view, update, or delete an activity, 'back', or 'exit': "
+            ).strip()
 
-        if user_input_table.lower() == "n" and end < total_amount_of_activities:
+        if user_input_table.isdigit():
+            chosen_id = int(user_input_table)
+            activity = session.query(Activity).all()[chosen_id]
+            if activity:
+                loop = False
+                update_activity_prompt(chosen_id)
+            else:
+                clear_terminal()
+                print("No activity found with the specified ID.")
+                display_table(start, end)
+        elif user_input_table.lower() == "n" and end < total_amount_of_activities:
             start += 10
             end += 10
             if end > total_amount_of_activities:
                 end = total_amount_of_activities
             display_table(start, end)
-        elif user_input_table == "p" and start > 0:
+        elif user_input_table.lower() == "p" and start > 0:
             start -= 10
             end = start + 10
             display_table(start, end)
-        elif user_input_table == "back":
+        elif user_input_table.lower() == "back":
             loop = False
             clear_terminal()
             activities_menu()
@@ -128,20 +139,26 @@ def create_activity():
     clear_terminal()
     print("Create Activity Menu".center(width))
     activity_instance = dict()
-    activity_name = input("Input activity name: ")
+    activity_name = input("Input activity name: ").strip()
     if 0 < len(activity_name) <= 68:
         activity_instance["name"] = activity_name
-        activity_description = input("Input activity description: ")
+        activity_description = input("Input activity description: ").strip()
         if 0 < len(activity_description) <= 68:
             activity_instance["description"] = activity_description
-            activity_notes = input("Input activity note: ")
+            activity_notes = input("Input activity note: ").strip()
             if 0 < len(activity_notes) <= 68:
                 activity_instance["notes"] = activity_notes
-                activity_location = input("Input activity location: ")
+                activity_location = input(
+                    "Input activity location (City,State or City, Region, Country):  "
+                ).strip()
                 if 0 < len(activity_location) and 0 < activity_location.count(",") <= 2:
                     activity_instance["location"] = activity_location
-                    activity_weather = input(
-                        'Input activity weather condition ["Clear", "Cloudy", "Rainy", "Snowy", "Windy", "Foggy", "Hot", "Cold", "Mild", "Sunny"]: '
+                    activity_weather = (
+                        input(
+                            'Input activity weather condition ["Clear", "Cloudy", "Rainy", "Snowy", "Windy", "Foggy", "Hot", "Cold", "Mild", "Sunny"]: '
+                        )
+                        .strip()
+                        .title()
                     )
                     if activity_weather in (
                         "Clear",
@@ -156,9 +173,12 @@ def create_activity():
                         "Sunny",
                     ):
                         activity_instance["weather"] = activity_weather
-                        activity_date = input("Input activity date (YYYY-MM-DD): ")
+                        activity_date = input(
+                            "Input activity date (YYYY-MM-DD): "
+                        ).strip()
                         if is_valid_date(activity_date):
                             activity_instance["date"] = activity_date
+                            clear_terminal()
                             print("Does this activity information look correct?")
                             print("Activity name: " + activity_instance["name"])
                             print(
@@ -169,7 +189,7 @@ def create_activity():
                             print("Activity location: " + activity_instance["location"])
                             print("Activity weather: " + activity_instance["weather"])
                             print("Activity date: " + activity_instance["date"])
-                            confirmation = input("y/n : ")
+                            confirmation = input("y/n : ").strip()
                             if confirmation == "y":
                                 new_activity = Activity.add_activity(
                                     name=activity_instance["name"],
@@ -181,15 +201,13 @@ def create_activity():
                                 )
                                 session.add(new_activity)
                                 session.commit()
-                                print(
-                                    "Activity has been added. Would you like to add some photos as well?"
-                                )
-                                add_photo = input("y/n : ")
-                                if add_photo == "y":
-                                    pass
-                                if add_photo == "n":
-                                    main_menu()
+                                print("Activity has been added to the table!")
+                                time.sleep(3)
+                                main_menu()
                             elif confirmation == "n":
+                                clear_terminal()
+                                print("Activity was not saved.")
+                                time.sleep(3)
                                 activities_menu()
                             else:
                                 clear_terminal()
@@ -233,6 +251,60 @@ def create_activity():
         create_activity()
 
 
+def update_activity_prompt(chosen_id):
+    global current_page
+    current_page = view_activities
+    activity = session.query(Activity).all()[chosen_id - 1]
+    clear_terminal()
+    print(f"You have selected: \n\n{activity}")
+    correct_yn = input("y/n : ").strip()
+    if correct_yn == "y":
+        clear_terminal()
+        print(f"Updating activity: \n\n{activity}")
+
+        new_name = input("Enter new name or press enter to skip: ").strip()
+        if new_name:
+            activity.name = new_name
+
+        new_description = input(
+            "Enter new description or press enter to skip: "
+        ).strip()
+        if new_description:
+            activity.description = new_description
+
+        new_note = input("Enter new note or press enter to skip: ").strip()
+        if new_note:
+            activity.notes = new_note
+
+        new_location = input("Enter new location or press enter to skip: ").strip()
+        if new_location:
+            activity.location = new_location
+
+        new_weather = input(
+            "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
+        ).strip()
+        if new_weather:
+            activity.weather = new_weather
+
+        new_date = input("Enter new date or press enter to skip: ").strip()
+        if new_date:
+            activity.date = new_date
+        print(activity)
+        print("Would you like to update this activity?")
+        update_yn = input("y/n: ").strip()
+        if update_yn == "y":
+            session.commit()
+            print("Activity updated successfully!")
+            main_menu()
+        else:
+            clear_terminal()
+            y_n_error()
+    elif correct_yn == "n":
+        view_activities()
+    else:
+        print("Activity with specified ID not found.")
+
+
 def categories_menu():
     global current_page
     current_page = categories_menu
@@ -241,7 +313,7 @@ def categories_menu():
     print(
         "Would you like to:\n1:Create a category\n2:Update a category\n3:Delete a category"
     )
-    category_option = input("Type 1, 2, 3, exit, or back : ")
+    category_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if category_option.lower() == "exit":
         clear_terminal()
         exit()
@@ -297,7 +369,7 @@ def display_table(start, end):
 
 def exit():
     print("Are you sure you want to exit?\n")
-    exit_y_or_n = input("y/n: ")
+    exit_y_or_n = input("y/n: ").strip()
     if exit_y_or_n.lower() == "y":
         print("Goodbye!")
         time.sleep(1)

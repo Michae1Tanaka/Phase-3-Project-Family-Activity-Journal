@@ -102,7 +102,7 @@ class Activity(Base):
             self._weather = weather
         else:
             raise Exception(
-                "Weather must be 'Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild' "
+                "Weather must be 'Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny' "
             )
 
     @property
@@ -167,10 +167,10 @@ class Activity(Base):
         formatted_date = f"{self._date.month}-{self._date.day}-{self._date.year}"
 
         return (
-            f"<Activity {self.name}> \n"
-            + f"<Description: {self.description}> \n"
-            + f"<Notes: {self.notes}> \n"
-            + f"<Location: {self.location}> \n"
-            + f"<Weather: {self.weather}> \n"
+            f"<Activity name: {self.name}> \n\n"
+            + f"<Description: {self.description}> \n\n"
+            + f"<Notes: {self.notes}> \n\n"
+            + f"<Location: {self.location}> \n\n"
+            + f"<Weather: {self.weather}> \n\n"
             + f"<Date: {formatted_date}>"
         )
