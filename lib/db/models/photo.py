@@ -46,10 +46,10 @@ class Photo(Base):
 
     @activity_id.setter
     def activity_id(self, activity_id):
-        if isinstance(activity_id, Activity):
+        if isinstance(activity_id, int):
             self._activity_id = activity_id
         else:
-            raise TypeError("Activity_id must be an instance of an Activity.")
+            raise TypeError("Activity_id must be an integer.")
 
     @classmethod
     def add_photo(cls, photo_description, url, activity_id):

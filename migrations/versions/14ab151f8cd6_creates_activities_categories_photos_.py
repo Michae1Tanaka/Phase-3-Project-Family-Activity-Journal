@@ -1,8 +1,8 @@
-"""creates activity,photo,category,activity_category tables
+"""Creates activities,categories,photos, and activity_categories tables
 
-Revision ID: c58d9cc7c0f0
-Revises: b35d487a07cb
-Create Date: 2023-08-19 11:09:30.526782
+Revision ID: 14ab151f8cd6
+Revises: fab162e94913
+Create Date: 2023-08-22 22:49:05.950695
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'c58d9cc7c0f0'
-down_revision: Union[str, None] = 'b35d487a07cb'
+revision: str = '14ab151f8cd6'
+down_revision: Union[str, None] = 'fab162e94913'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

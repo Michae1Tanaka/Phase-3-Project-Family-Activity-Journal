@@ -14,7 +14,6 @@ class Category(Base):
         "Activity",
         secondary=activity_category,
         back_populates="categories",
-        cascade="all",
     )
 
     @property

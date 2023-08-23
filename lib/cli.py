@@ -259,9 +259,9 @@ def chosen_activity(chosen_id):
         if view_update_delete.lower() == "v":
             view_activity(chosen_id)
         elif view_update_delete.lower() == "u":
-            update_activity_prompt(activity.id)
+            update_activity_prompt(chosen_id)
         elif view_update_delete.lower() == "d":
-            delete_activity()
+            delete_activity_prompt(chosen_id)
         else:
             multi_choice_error()
     elif correct_yn == "n":
@@ -331,6 +331,26 @@ def update_activity_prompt(chosen_id):
         view_activities()
     else:
         y_n_error()
+
+
+def delete_activity_prompt(chosen_id):
+    global last_page
+    last_page = view_activities
+    activity_to_delete = Activity.get_all_activities(session)[chosen_id]
+    clear_terminal()
+    correct_activity = input(
+        f"Is this the activity you would like to delete? [{activity_to_delete.name}]\n\ny/n: "
+    )
+    if correct_activity == "y":
+        activity_to_delete.delete_activity(session)
+        session.commit()
+        print(f"You have successfully deleted {activity_to_delete.name}")
+        time.sleep(2)
+        main_menu()
+    elif correct_activity == "n":
+        view_activities()
+    else:
+        y_n_error
 
 
 def categories_menu():
