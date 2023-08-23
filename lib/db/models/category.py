@@ -11,7 +11,10 @@ class Category(Base):
     _category_name = Column("category_name", String, unique=True)
 
     activities = relationship(
-        "Activity", secondary=activity_category, back_populates="categories"
+        "Activity",
+        secondary=activity_category,
+        back_populates="categories",
+        cascade="all",
     )
 
     @property
@@ -28,6 +31,9 @@ class Category(Base):
             raise ValueError(
                 "Category name must be in between the characters of 0 and 33."
             )
+
+    def delete_category(self, session):
+        session.delete(self)
 
     @classmethod
     def add_category(cls, category_name):

@@ -261,8 +261,7 @@ def chosen_activity(chosen_id):
         elif view_update_delete.lower() == "u":
             update_activity_prompt(activity.id)
         elif view_update_delete.lower() == "d":
-            pass
-            # ?
+            delete_activity()
         else:
             multi_choice_error()
     elif correct_yn == "n":
@@ -350,13 +349,10 @@ def categories_menu():
     elif category_option in ["1", "2", "3"]:
         if category_option == "1":
             create_category_prompt()
-            pass
         elif category_option == "2":
             update_category_prompt()
-            pass
         elif category_option == "3":
-            # delete_category
-            pass
+            delete_category_prompt()
     else:
         multi_choice_error()
         categories_menu()
@@ -417,7 +413,7 @@ def update_category_prompt():
         categories_menu()
     elif int(category_to_update) in range(1, (len(categories))):
         category_to_update = int(category_to_update)
-        category_chosen = session.query(Category).all()[category_to_update - 1]
+        category_chosen = categories[category_to_update - 1]
         clear_terminal()
         y_n_correct = input(
             f"Is this the category you wanted to select [{category_chosen.category_name}]? y/n  :  "
@@ -452,7 +448,40 @@ def update_category_prompt():
     else:
         multi_choice_error()
 
-        pass
+
+def delete_category_prompt():
+    global last_page
+    last_page = categories_menu
+    categories_to_delete = session.query(Category).all()
+    clear_terminal()
+    print(
+        f"Here are your current categories: {[f'{index + 1}: {category.category_name}' for index, category in enumerate(categories_to_delete)]} \n\n"
+    )
+    to_delete = input(
+        'Which category would you like to delete?\n\nType a number corresponding to a category or "back" to go back to the categories menu: '
+    )
+    if to_delete.isdigit():
+        to_delete = int(to_delete)
+        clear_terminal()
+        category_to_delete = categories_to_delete[to_delete - 1]
+        yn_to_delete = input(
+            f"Is this the category you would like to delete? [{category_to_delete.category_name}]\n\ny/n: "
+        )
+        if yn_to_delete == "y":
+            category_to_delete.delete_category(session)
+            session.commit()
+            clear_terminal()
+            print(f"You have successfully deleted {category_to_delete.category_name}")
+            time.sleep(2)
+            main_menu()
+        elif yn_to_delete == "n":
+            categories_menu()
+        else:
+            y_n_error()
+    elif to_delete == "back":
+        categories_menu()
+    else:
+        multi_choice_error()
 
 
 def display_table(start, end):
