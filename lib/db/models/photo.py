@@ -52,11 +52,9 @@ class Photo(Base):
             raise TypeError("Activity_id must be an integer.")
 
     @classmethod
-    def add_photo(cls, photo_description, url, activity_id):
-        new_photo = Photo(
-            photo_description=photo_description, url=url, activity_id=activity_id
-        )
-        return new_photo
+    def get_all_photos(cls, session):
+        all_photos = session.query(cls).all()
+        return all_photos
 
     @staticmethod
     def is_valid_image(source):

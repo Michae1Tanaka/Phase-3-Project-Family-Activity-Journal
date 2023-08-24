@@ -31,13 +31,5 @@ class Category(Base):
                 "Category name must be in between the characters of 0 and 33."
             )
 
-    def delete_category(self, session):
-        session.delete(self)
-
-    @classmethod
-    def add_category(cls, category_name):
-        new_category = Category(category_name=category_name)
-        return new_category
-
     def __repr__(self):
         return f"<Category {self.category_name}>"

@@ -8,7 +8,7 @@ from prettytable import PrettyTable
 import os
 from datetime import date
 
-table = PrettyTable()
+
 session = Session()
 last_page = None
 width = os.get_terminal_size().columns
@@ -48,7 +48,7 @@ def activities_menu():
     global last_page
     last_page = activities_menu
     clear_terminal()
-    print("Activities Menu:\n")
+    print("Activities Menu:\n".center(width))
     print("Would you like to:\n1: View activities?\n2: Create an activity?\n3:?")
     activity_option = input("Type 1, 2, 3, 4, exit, or back : ").strip()
     if activity_option.lower() == "exit":
@@ -60,9 +60,8 @@ def activities_menu():
             view_activities()
         elif activity_option == "2":
             create_activity()
-            pass
         elif activity_option == "3":
-            # add photo?
+            # ?
             pass
     else:
         multi_choice_error()
@@ -96,13 +95,15 @@ def view_activities():
         if user_input_table.isdigit():
             chosen_id = int(user_input_table) - 1
             activity = session.query(Activity).all()[chosen_id]
+            loop = False
             if activity:
                 loop = False
                 chosen_activity(chosen_id)
             else:
                 clear_terminal()
+                loop = False
                 print("No activity found with the specified ID.")
-                display_table(start, end)
+                view_activities()
         elif user_input_table.lower() == "n" and end < total_amount_of_activities:
             start += 10
             end += 10
@@ -121,7 +122,126 @@ def view_activities():
             exit()
         else:
             multi_choice_error()
+            loop = False
             display_table(start, end)
+
+
+def chosen_activity(chosen_id):
+    global last_page
+    last_page = view_activities
+    activity = session.query(Activity).all()[chosen_id]
+    clear_terminal()
+    print(f"You have selected: \n\n{activity}")
+    correct_yn = input("y/n : ").strip()
+    if correct_yn == "y":
+        clear_terminal()
+        print(
+            "Would you like to View, Update, or Delete the Activity\n\n\n\n".center(
+                width
+            )
+        )
+        view_update_delete = input(
+            "Type 'v' to view, 'u' to update, 'd' to delete, or 'a' to attach a photo or category to the activity: "
+        ).strip()
+        if view_update_delete.lower() == "v":
+            view_activity(chosen_id)
+        elif view_update_delete.lower() == "u":
+            update_activity_prompt(chosen_id)
+        elif view_update_delete.lower() == "d":
+            delete_activity_prompt(chosen_id)
+        elif view_update_delete.lower() == "a":
+            attach_photo_or_category_to_activity(chosen_id)
+        else:
+            multi_choice_error()
+    elif correct_yn == "n":
+        view_activities()
+    else:
+        y_n_error()
+
+
+def view_activity(chosen_id):
+    start = chosen_id
+    end = chosen_id + 1
+    global last_page
+    last_page = view_activities
+    display_table(start, end)
+    back_exit_or_mm = input(
+        "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
+    ).strip()
+    if back_exit_or_mm == "back":
+        view_activities()
+    elif back_exit_or_mm == "mm":
+        main_menu()
+    elif back_exit_or_mm == "exit":
+        exit()
+    else:
+        multi_choice_error()
+
+
+def update_activity_prompt(chosen_id):
+    global last_page
+    last_page = view_activities
+    activity = session.query(Activity).all()[chosen_id]
+
+    clear_terminal()
+    print(f"You have selected: \n\n{activity}\n")
+    new_name = input("Enter new name or press enter to skip: ").strip()
+    if new_name:
+        activity.name = new_name
+
+    new_description = input("Enter new description or press enter to skip: ").strip()
+    if new_description:
+        activity.description = new_description
+
+    new_note = input("Enter new note or press enter to skip: ").strip()
+    if new_note:
+        activity.notes = new_note
+
+    new_location = input("Enter new location or press enter to skip: ").strip()
+    if new_location:
+        activity.location = new_location
+
+    new_weather = input(
+        "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
+    ).strip()
+    if new_weather:
+        activity.weather = new_weather
+
+    new_date = input("Enter new date or press enter to skip: ").strip()
+    if new_date:
+        activity.date = new_date
+    print(activity)
+    print("Would you like to update this activity?")
+    update_yn = input("y/n: ").strip()
+    if update_yn == "y":
+        session.commit()
+        print("Activity updated successfully!")
+        time.sleep(2)
+        main_menu()
+    if update_yn == "n":
+        view_activities()
+    else:
+        y_n_error()
+
+
+def delete_activity_prompt(chosen_id):
+    global last_page
+    last_page = view_activities
+    activity_to_delete = Activity.get_all_activities(session)[chosen_id]
+    clear_terminal()
+    correct_activity = input(
+        f"Is this the activity you would like to delete? [{activity_to_delete.name}]\n\ny/n: "
+    )
+    if correct_activity == "y":
+        session.delete(activity_to_delete)
+        session.commit()
+        print(f"You have successfully deleted {activity_to_delete.name}")
+        time.sleep(2)
+        main_menu()
+    elif correct_activity == "n":
+        view_activities()
+    else:
+        y_n_error
 
 
 def create_activity():
@@ -180,7 +300,7 @@ def create_activity():
                             print("Activity date: " + activity_instance["date"])
                             confirmation = input("y/n : ").strip()
                             if confirmation == "y":
-                                new_activity = Activity.add_activity(
+                                new_activity = Activity(
                                     name=activity_instance["name"],
                                     description=activity_instance["description"],
                                     notes=activity_instance["notes"],
@@ -239,118 +359,72 @@ def create_activity():
         create_activity()
 
 
-def chosen_activity(chosen_id):
+def attach_photo_or_category_to_activity(chosen_index):
     global last_page
     last_page = view_activities
-    activity = session.query(Activity).all()[chosen_id]
+    activity = session.query(Activity).all()[chosen_index]
+    categories = session.query(Category).all()
     clear_terminal()
-    print(f"You have selected: \n\n{activity}")
-    correct_yn = input("y/n : ").strip()
-    if correct_yn == "y":
+    photo_or_category = input(
+        f"Would you like to attach a photo or a category to [{activity.name}]?\n\nType 'p' for photo, 'c' for category, or 'back' to go back to Activities Table: \n\n"
+    )
+    if photo_or_category == "back":
+        view_activities()
+    elif photo_or_category == "p":
+        clear_terminal()
+        photo_description = input("Please enter the new photo description: ")
+        if photo_description:
+            photo_url = input("\n\nPlease enter the new photo url : ")
+            if photo_url.split(".")[-1] in ["jpeg", "png", "pdf", "jpg", "heic"]:
+                new_photo = Photo(photo_description=photo_description, url=photo_url)
+                activity.photos.append(new_photo)
+                session.add(new_photo)
+                session.commit()
+                clear_terminal()
+                print("New photo has been added to the database.").center(width)
+                time.sleep(2)
+                main_menu()
+            else:
+                clear_terminal()
+                print(
+                    'The photo must end in ["jpeg", "png", "pdf", "jpg", "heic"]. Please try again.'
+                )
+                time.sleep(2)
+                attach_photo_or_category_to_activity(chosen_index)
+        else:
+            view_activities()
+    elif photo_or_category == "c":
         clear_terminal()
         print(
-            "Would you like to View, Update, or Delete the Activity\n\n\n\n".center(
-                width
-            )
+            f'Here are your current categories. {[f"{index + 1}: {category.category_name}" for index,category in enumerate(categories)]}\n'
         )
-        view_update_delete = input(
-            "Type 'v' to view, 'u' to update, or 'd' to delete the activity: "
-        ).strip()
-        if view_update_delete.lower() == "v":
-            view_activity(chosen_id)
-        elif view_update_delete.lower() == "u":
-            update_activity_prompt(chosen_id)
-        elif view_update_delete.lower() == "d":
-            delete_activity_prompt(chosen_id)
+        category_option = input(
+            "Please select an option that corresponds to a category to attach to an activity."
+        )
+        if int(category_option) in range(1, len(categories) + 1):
+            clear_terminal()
+            category_option = int(category_option)
+            category_chosen = session.query(Category).all()[category_option - 1]
+            correct_option = input(
+                f"Would you like to attach [{category_chosen.category_name}] to [{activity.name}]? \n\ny/n :"
+            )
+            if correct_option == "y":
+                activity.categories.append(category_chosen)
+                session.commit()
+                clear_terminal()
+                print(
+                    f"You have added [{category_chosen.category_name}] to [{activity.name}]!"
+                )
+                time.sleep(2)
+                main_menu()
+            elif correct_option == "n":
+                view_activities()
+            else:
+                y_n_error()
         else:
             multi_choice_error()
-    elif correct_yn == "n":
-        view_activities()
-    else:
-        y_n_error()
-
-
-def view_activity(chosen_id):
-    start = chosen_id
-    end = chosen_id + 1
-    global last_page
-    last_page = view_activities
-    display_table(start, end)
-    back_exit_or_mm = input(
-        "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
-    ).strip()
-    if back_exit_or_mm == "back":
-        view_activities()
-    elif back_exit_or_mm == "mm":
-        main_menu()
-    elif back_exit_or_mm == "exit":
-        exit()
     else:
         multi_choice_error()
-
-
-def update_activity_prompt(chosen_id):
-    global last_page
-    last_page = view_activities
-    activity = session.query(Activity).all()[chosen_id - 1]
-    clear_terminal()
-    print(f"You have selected: \n\n{activity}\n")
-    new_name = input("Enter new name or press enter to skip: ").strip()
-    if new_name:
-        activity.name = new_name
-
-    new_description = input("Enter new description or press enter to skip: ").strip()
-    if new_description:
-        activity.description = new_description
-
-    new_note = input("Enter new note or press enter to skip: ").strip()
-    if new_note:
-        activity.notes = new_note
-
-    new_location = input("Enter new location or press enter to skip: ").strip()
-    if new_location:
-        activity.location = new_location
-
-    new_weather = input(
-        "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
-    ).strip()
-    if new_weather:
-        activity.weather = new_weather
-
-    new_date = input("Enter new date or press enter to skip: ").strip()
-    if new_date:
-        activity.date = new_date
-    print(activity)
-    print("Would you like to update this activity?")
-    update_yn = input("y/n: ").strip()
-    if update_yn == "y":
-        session.commit()
-        print("Activity updated successfully!")
-        main_menu()
-    if update_yn == "n":
-        view_activities()
-    else:
-        y_n_error()
-
-
-def delete_activity_prompt(chosen_id):
-    global last_page
-    last_page = view_activities
-    activity_to_delete = Activity.get_all_activities(session)[chosen_id]
-    clear_terminal()
-    correct_activity = input(
-        f"Is this the activity you would like to delete? [{activity_to_delete.name}]\n\ny/n: "
-    )
-    if correct_activity == "y":
-        activity_to_delete.delete_activity(session)
-        session.commit()
-        print(f"You have successfully deleted {activity_to_delete.name}")
-        time.sleep(2)
-        main_menu()
-    elif correct_activity == "n":
-        view_activities()
-    else:
-        y_n_error
 
 
 def categories_menu():
@@ -396,7 +470,7 @@ def create_category_prompt():
     elif category_name == "back":
         categories_menu()
     else:
-        new_category = Category.add_category(category_name=category_name)
+        new_category = Category(category_name=category_name)
         if new_category:
             clear_terminal()
             print(
@@ -415,7 +489,7 @@ def create_category_prompt():
             else:
                 y_n_error()
         else:
-            pass
+            main_menu()
 
 
 def update_category_prompt():
@@ -506,7 +580,7 @@ def delete_category_prompt():
 
 def display_table(start, end):
     activities = Activity.get_all_activities(session)
-    activity_ids = [activity.id for activity in activities[start:end]]
+    activity_ids = list(range(1, len(activities[start:end]) + 1))
     activity_names = [activity.name for activity in activities[start:end]]
     activity_weather = [activity.weather for activity in activities[start:end]]
     activity_notes = [activity.notes for activity in activities[start:end]]

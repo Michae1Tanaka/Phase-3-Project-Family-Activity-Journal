@@ -140,21 +140,6 @@ class Activity(Base):
         if weather is not None:
             self.weather = weather
 
-    def delete_activity(self, session):
-        session.delete(self)
-
-    @classmethod
-    def add_activity(cls, name, description, notes, location, date, weather):
-        new_activity = Activity(
-            name=name,
-            description=description,
-            notes=notes,
-            location=location,
-            date=date,
-            weather=weather,
-        )
-        return new_activity
-
     @classmethod
     def get_all_activities(cls, session):
         all_activities = session.query(cls).all()
