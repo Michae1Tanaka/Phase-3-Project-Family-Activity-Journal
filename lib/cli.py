@@ -26,7 +26,9 @@ def main_menu():
     last_page = main_menu
     clear_terminal()
     print("Main Menu:\n".center(width))
-    print("Would you like to:\n1:View Activities\n2:View Categories\n3:View Table")
+    print(
+        "Would you like to:\n\n1:View Activity Menu\n\n2:View Category Menu\n\n3:View Photo Menu\n\n"
+    )
     menu_option = input("Type 1, 2 , 3, or exit: ").strip()
     if menu_option.lower() == "exit":
         exit()
@@ -35,10 +37,8 @@ def main_menu():
             activities_menu()
         elif menu_option == "2":
             categories_menu()
-            pass
         elif menu_option == "3":
-            # photos menu
-            pass
+            photo_menu()
     else:
         multi_choice_error()
         main_menu()
@@ -50,7 +50,7 @@ def activities_menu():
     clear_terminal()
     print("Activities Menu:\n".center(width))
     print(
-        "Would you like to:\n1: View activities?\n2: Create an activity?\n3: View activities based on category?"
+        "Would you like to:\n\n1: View activities?\n\n2: Create an activity?\n\n3: View activities based on category?\n\n"
     )
     activity_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if activity_option.lower() == "exit":
@@ -165,7 +165,7 @@ def view_activity(chosen_id):
     end = chosen_id + 1
     global last_page
     last_page = view_activities
-    display_table(start, end)
+    display_table(start, end, real_id=True)
     back_exit_or_mm = input(
         "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
     ).strip()
@@ -461,7 +461,7 @@ def categories_menu():
     clear_terminal()
     print("Categories Menu\n")
     print(
-        "Would you like to:\n1: Create a category\n2: Update a category\n3: Delete a category"
+        "Would you like to:\n\n1: Create a category\n\n2: Update a category\n\n3: Delete a category\n\n"
     )
     category_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if category_option.lower() == "exit":
@@ -490,7 +490,7 @@ def create_category_prompt():
         + f"{[category.category_name for category in categories]}\n\n"
     )
     category_name = input(
-        "Input the new category you would like to create or 'back' to go back to categories menu: "
+        "Input the new category's name you would like to create or 'back': "
     ).strip()
     if not 0 < len(category_name) <= 32:
         print("The category name but be in between 0 and 33 characters.")
@@ -606,14 +606,57 @@ def delete_category_prompt():
         multi_choice_error()
 
 
-def display_table(start, end, category_filter=None, category_chosen=None):
+def photo_menu():
+    global last_page
+    last_page = main_menu
+    clear_terminal()
+    print("Photo Menu\n\n".center(width))
+    print(
+        "Would you like to \n\n1: Add a photo?\n\n2: Update a photo?\n\n3: Delete a photo?\n\n"
+    )
+    photo_menu_choice = input("Type 1, 2, 3 exit, or back : ")
+    if photo_menu_choice.lower() == "back":
+        main_menu()
+    elif photo_menu_choice.lower() == "exit":
+        exit()
+    elif photo_menu_choice in ["1", "2", "3"]:
+        if photo_menu_choice == "1":
+            # create_photo_prompt()
+            pass
+        elif photo_menu_choice == "2":
+            # update_photo_prompt()
+            pass
+        elif photo_menu_choice == "3":
+            # delete_photo_prompt()
+            pass
+        else:
+            multi_choice_error()
+    else:
+        multi_choice_error()
+
+
+def display_table(
+    start, end, category_filter=None, category_chosen=None, real_id=False
+):
     if category_filter:
         activities = category_chosen.activities
     else:
         activities = Activity.get_all_activities(session)
     sliced_activities = activities[start:end]
-
-    activity_ids = list(range(start + 1, end + 1))
+    table = PrettyTable()
+    if real_id:
+        activity_ids = [activity.id for activity in sliced_activities]
+        table.field_names = [
+            "Table ID",
+            "Activity",
+            "Location",
+            "Weather",
+            "Notes",
+            "Date",
+        ]
+    else:
+        activity_ids = list(range(start + 1, end + 1))
+        table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
     activity_names = [activity.name for activity in sliced_activities]
     activity_weather = [activity.weather for activity in sliced_activities]
     activity_notes = [activity.notes for activity in sliced_activities]
@@ -622,9 +665,6 @@ def display_table(start, end, category_filter=None, category_chosen=None):
         f"{activity.date.month}-{activity.date.day}-{activity.date.year}"
         for activity in sliced_activities
     ]
-
-    table = PrettyTable()
-    table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
 
     for id, activity, location, weather, notes, date in zip(
         activity_ids,
@@ -708,6 +748,12 @@ def is_valid_date(date_str):
         return True
     except ValueError:
         return False
+
+
+def is_valid_image(source):
+    allowed_extensions = ["jpeg", "png", "pdf", "jpg", "heic"]
+    extension = source.split(".")[-1]
+    return extension.lower() in allowed_extensions
 
 
 if __name__ == "__main__":

@@ -149,7 +149,8 @@ class Activity(Base):
         formatted_date = f"{self._date.month}-{self._date.day}-{self._date.year}"
 
         return (
-            f"<Activity name: {self.name}> \n\n"
+            f"< Table ID: {self.id}> \n\n"
+            + f"<Activity Name: {self.name}> \n\n"
             + f"<Description: {self.description}> \n\n"
             + f"<Notes: {self.notes}> \n\n"
             + f"<Location: {self.location}> \n\n"
