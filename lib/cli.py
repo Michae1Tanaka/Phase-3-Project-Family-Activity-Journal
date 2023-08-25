@@ -49,20 +49,21 @@ def activities_menu():
     last_page = activities_menu
     clear_terminal()
     print("Activities Menu:\n".center(width))
-    print("Would you like to:\n1: View activities?\n2: Create an activity?\n3:?")
-    activity_option = input("Type 1, 2, 3, 4, exit, or back : ").strip()
+    print(
+        "Would you like to:\n1: View activities?\n2: Create an activity?\n3: View activities based on category?"
+    )
+    activity_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if activity_option.lower() == "exit":
         exit()
     elif activity_option.lower() == "back":
         main_menu()
-    elif activity_option in ["1", "2", "3", "4"]:
+    elif activity_option in ["1", "2", "3"]:
         if activity_option == "1":
             view_activities()
         elif activity_option == "2":
             create_activity()
         elif activity_option == "3":
-            # ?
-            pass
+            view_activities_based_on_category()
     else:
         multi_choice_error()
         activities_menu()
@@ -359,6 +360,33 @@ def create_activity():
         create_activity()
 
 
+def view_activities_based_on_category():
+    global last_page
+    last_page = activities_menu
+    clear_terminal()
+    categories = session.query(Category).all()
+
+    print(
+        f'Here is your current list of categories {[f"{index + 1}:  {category.category_name}" for index,category in enumerate(categories)]}\n\n'
+    )
+    category = input(
+        'Please select a number that corresponds with a category or "back" for Activities Menu: '
+    )
+    if category == "back":
+        activities_menu()
+    elif int(category) in range(1, len(categories) + 1):
+        category = int(category)
+        category_chosen = categories[category - 1]
+        print(f"You have chosen [{category_chosen.category_name}]")
+        time.sleep(1)
+        display_table(
+            start=0,
+            end=len(category_chosen.activities),
+            category_filter=True,
+            category_chosen=category_chosen,
+        )
+
+
 def attach_photo_or_category_to_activity(chosen_index):
     global last_page
     last_page = view_activities
@@ -433,7 +461,7 @@ def categories_menu():
     clear_terminal()
     print("Categories Menu\n")
     print(
-        "Would you like to:\n1:Create a category\n2:Update a category\n3:Delete a category"
+        "Would you like to:\n1: Create a category\n2: Update a category\n3: Delete a category"
     )
     category_option = input("Type 1, 2, 3, exit, or back : ").strip()
     if category_option.lower() == "exit":
@@ -505,7 +533,7 @@ def update_category_prompt():
     ).strip()
     if category_to_update == "back":
         categories_menu()
-    elif int(category_to_update) in range(1, (len(categories))):
+    elif int(category_to_update) in range(1, (len(categories) + 1)):
         category_to_update = int(category_to_update)
         category_chosen = categories[category_to_update - 1]
         clear_terminal()
@@ -562,7 +590,7 @@ def delete_category_prompt():
             f"Is this the category you would like to delete? [{category_to_delete.category_name}]\n\ny/n: "
         )
         if yn_to_delete == "y":
-            category_to_delete.delete_category(session)
+            session.delete(category_to_delete)
             session.commit()
             clear_terminal()
             print(f"You have successfully deleted {category_to_delete.category_name}")
@@ -578,17 +606,23 @@ def delete_category_prompt():
         multi_choice_error()
 
 
-def display_table(start, end):
-    activities = Activity.get_all_activities(session)
-    activity_ids = list(range(1, len(activities[start:end]) + 1))
-    activity_names = [activity.name for activity in activities[start:end]]
-    activity_weather = [activity.weather for activity in activities[start:end]]
-    activity_notes = [activity.notes for activity in activities[start:end]]
-    activity_locations = [activity.location for activity in activities[start:end]]
+def display_table(start, end, category_filter=None, category_chosen=None):
+    if category_filter:
+        activities = category_chosen.activities
+    else:
+        activities = Activity.get_all_activities(session)
+    sliced_activities = activities[start:end]
+
+    activity_ids = list(range(start + 1, end + 1))
+    activity_names = [activity.name for activity in sliced_activities]
+    activity_weather = [activity.weather for activity in sliced_activities]
+    activity_notes = [activity.notes for activity in sliced_activities]
+    activity_locations = [activity.location for activity in sliced_activities]
     activity_dates = [
         f"{activity.date.month}-{activity.date.day}-{activity.date.year}"
-        for activity in activities[start:end]
+        for activity in sliced_activities
     ]
+
     table = PrettyTable()
     table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
 
@@ -604,8 +638,23 @@ def display_table(start, end):
 
     clear_terminal()
     width = os.get_terminal_size().columns
-    print("Activities Table".center(width))
-    print(table)
+    if category_filter:
+        category_filter_str = table.get_string()
+        centered_category_filtered_table = "\n".join(
+            [line.center(width) for line in category_filter_str.split("\n")]
+        )
+        clear_terminal()
+        print(f"Activities in {category_chosen.category_name}".center(width))
+        print(centered_category_filtered_table)
+    else:
+        table_str = table.get_string()
+        centered_table = "\n".join(
+            [line.center(width) for line in table_str.split("\n")]
+        )
+
+        clear_terminal()
+        print("Activities Table".center(width))
+        print(centered_table)
 
 
 def exit():
