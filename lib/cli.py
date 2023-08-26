@@ -611,74 +611,190 @@ def photo_menu():
     last_page = main_menu
     clear_terminal()
     print("Photo Menu\n\n".center(width))
-    print(
-        "Would you like to \n\n1: Add a photo?\n\n2: Update a photo?\n\n3: Delete a photo?\n\n"
-    )
+    print("Would you like to \n\n1: View Photo Table\n\n")
     photo_menu_choice = input("Type 1, 2, 3 exit, or back : ")
     if photo_menu_choice.lower() == "back":
         main_menu()
     elif photo_menu_choice.lower() == "exit":
         exit()
-    elif photo_menu_choice in ["1", "2", "3"]:
+    elif photo_menu_choice == "1":
         if photo_menu_choice == "1":
-            # create_photo_prompt()
-            pass
-        elif photo_menu_choice == "2":
-            # update_photo_prompt()
-            pass
-        elif photo_menu_choice == "3":
-            # delete_photo_prompt()
-            pass
+            view_photo_table()
         else:
             multi_choice_error()
     else:
         multi_choice_error()
 
 
-def display_table(
-    start, end, category_filter=None, category_chosen=None, real_id=False
-):
-    if category_filter:
-        activities = category_chosen.activities
-    else:
-        activities = Activity.get_all_activities(session)
-    sliced_activities = activities[start:end]
-    table = PrettyTable()
-    if real_id:
-        activity_ids = [activity.id for activity in sliced_activities]
-        table.field_names = [
-            "Table ID",
-            "Activity",
-            "Location",
-            "Weather",
-            "Notes",
-            "Date",
-        ]
-    else:
-        activity_ids = list(range(start + 1, end + 1))
-        table.field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
-    activity_names = [activity.name for activity in sliced_activities]
-    activity_weather = [activity.weather for activity in sliced_activities]
-    activity_notes = [activity.notes for activity in sliced_activities]
-    activity_locations = [activity.location for activity in sliced_activities]
-    activity_dates = [
-        f"{activity.date.month}-{activity.date.day}-{activity.date.year}"
-        for activity in sliced_activities
-    ]
+def view_photo_table():
+    global last_page
+    last_page = view_photo_table
+    start = 0
+    end = 10
+    total_photos = len(session.query(Photo).all())
 
-    for id, activity, location, weather, notes, date in zip(
-        activity_ids,
-        activity_names,
-        activity_locations,
-        activity_weather,
-        activity_notes,
-        activity_dates,
-    ):
-        table.add_row([id, activity, location, weather, notes, date])
+    display_table(start, end, entity_type="photo")
+
+    loop = True
+    while loop:
+        if end >= total_photos:
+            user_input_table = input(
+                "Type 'p' for previous, an ID to view or update a photo, 'back', or 'exit': "
+            ).strip()
+        elif start == 0:
+            user_input_table = input(
+                "Type 'n' for next to see the next 10 photos, an ID to view or update a photo, 'back', or 'exit': "
+            ).strip()
+        else:
+            user_input_table = input(
+                "Type 'n' for next to see the next 10 photos, 'p' for previous to see previous 10, an ID to view or update a photo, 'back', or 'exit': "
+            ).strip()
+
+        if user_input_table.isdigit():
+            chosen_index = int(user_input_table) - 1
+            photo = session.query(Photo).all()[chosen_index]
+            if photo:
+                loop = False
+                clear_terminal()
+                print(f"You have chosen [{photo.photo_description}]. Is that correct?")
+                photo_chosen = input("y/n : ")
+                if photo_chosen == "y":
+                    clear_terminal()
+                    print(
+                        "Type 'd' to delete this photo, or 'u' to update this photos information.\n\n"
+                    )
+                    to_update_delete = input("d/u: ")
+                    if to_update_delete == "d":
+                        clear_terminal()
+                        to_delete = input(
+                            f"Are you sure you want to delete [{photo.photo_description}]?\n\ny/n: "
+                        )
+                        if to_delete == "y":
+                            clear_terminal()
+                            session.delete(photo)
+                            session.commit()
+                            print(f"[{photo.photo_description}] was deleted!")
+                            time.sleep(2)
+                            main_menu()
+                        elif to_delete == "n":
+                            view_photo_table()
+                        else:
+                            y_n_error()
+                    elif to_update_delete == "u":
+                        update_photo_prompt(photo)
+
+            else:
+                clear_terminal()
+                print("No photo found with the specified ID.")
+                time.sleep(2)
+                view_photo_table()
+        elif user_input_table.lower() == "n" and end < total_photos:
+            start += 10
+            end += 10
+            if end > total_photos:
+                end = total_photos
+            display_table(start, end, entity_type="photo")
+        elif user_input_table.lower() == "p" and start > 0:
+            start -= 10
+            end = start + 10
+            display_table(start, end, entity_type="photo")
+        elif user_input_table.lower() == "back":
+            loop = False
+            photo_menu()
+        elif user_input_table.lower() == "exit":
+            loop = False
+            exit()
+        else:
+            multi_choice_error()
+            display_table(start, end, entity_type="photo")
+
+
+def update_photo_prompt(photo_chosen):
+    global last_page
+    last_page = view_photo_table
+    clear_terminal()
+    new_photo_description = input("Enter new photo description or 'enter' to skip: ")
+    if new_photo_description:
+        photo_chosen.photo_description = new_photo_description
+    new_photo_url = input("Enter new photo URL or 'enter' to skip: ")
+    if new_photo_url:
+        photo_chosen.url = new_photo_url
+    clear_terminal()
+    if new_photo_description or new_photo_url:
+        print(
+            f"Are you sure this look correct?\n\nPhoto Description: {new_photo_description if new_photo_description else photo_chosen.photo_description}\n\nPhoto URL: [{new_photo_url if new_photo_url else photo_chosen.url}]?\n\n"
+        )
+        update_photo = input("y/n: ")
+        if update_photo == "y":
+            session.commit()
+            clear_terminal()
+            print(f"{photo_chosen.photo_description} has been updated!")
+            time.sleep(2)
+            main_menu()
+        elif update_photo == "n":
+            view_photo_table()
+        else:
+            y_n_error()
+    else:
+        view_photo_table()
+
+
+def display_table(
+    start,
+    end,
+    category_filter=None,
+    category_chosen=None,
+    real_id=False,
+    entity_type="activity",
+):
+    if entity_type == "activity":
+        if category_filter:
+            items = category_chosen.activities
+        else:
+            items = Activity.get_all_activities(session)
+        if real_id:
+            item_ids = [item.id for item in items[start:end]]
+            field_names = [
+                "Table ID",
+                "Activity",
+                "Location",
+                "Weather",
+                "Notes",
+                "Date",
+            ]
+        else:
+            item_ids = list(range(start + 1, end + 1))
+            field_names = ["ID", "Activity", "Location", "Weather", "Notes", "Date"]
+        get_data = lambda item: [
+            item.name,
+            item.location,
+            item.weather,
+            item.notes,
+            f"{item.date.month}-{item.date.day}-{item.date.year}",
+        ]
+        header = "Activities Table"
+    elif entity_type == "photo":
+        items = session.query(Photo).all()
+        item_ids = list(range(start + 1, end + 1))
+        field_names = ["Photo ID", "Photo Description", "Photo URL"]
+        get_data = lambda item: [item.photo_description, item.url]
+        header = "Photos Table"
+    sliced_items = items[start:end]
+    table = PrettyTable()
+    table.field_names = field_names
+
+    for item_id, item in zip(item_ids, sliced_items):
+        row_data = [item_id] + get_data(item)
+        table.add_row(row_data)
 
     clear_terminal()
-    width = os.get_terminal_size().columns
-    if category_filter:
+    table_str = table.get_string()
+    centered_table = "\n".join([line.center(width) for line in table_str.split("\n")])
+
+    print(header.center(width))
+    print(centered_table)
+
+    if category_filter and entity_type == "activity":
         category_filter_str = table.get_string()
         centered_category_filtered_table = "\n".join(
             [line.center(width) for line in category_filter_str.split("\n")]
@@ -686,7 +802,7 @@ def display_table(
         clear_terminal()
         print(f"Activities in {category_chosen.category_name}".center(width))
         print(centered_category_filtered_table)
-    else:
+
         table_str = table.get_string()
         centered_table = "\n".join(
             [line.center(width) for line in table_str.split("\n")]
