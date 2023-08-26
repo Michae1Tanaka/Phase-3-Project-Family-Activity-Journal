@@ -612,7 +612,7 @@ def photo_menu():
     clear_terminal()
     print("Photo Menu\n\n".center(width))
     print("Would you like to \n\n1: View Photo Table\n\n")
-    photo_menu_choice = input("Type 1, 2, 3 exit, or back : ")
+    photo_menu_choice = input("Type 1, exit, or back : ")
     if photo_menu_choice.lower() == "back":
         main_menu()
     elif photo_menu_choice.lower() == "exit":
@@ -776,9 +776,15 @@ def display_table(
     elif entity_type == "photo":
         items = session.query(Photo).all()
         item_ids = list(range(start + 1, end + 1))
-        field_names = ["Photo ID", "Photo Description", "Photo URL"]
-        get_data = lambda item: [item.photo_description, item.url]
+        field_names = [
+            "Photo ID",
+            "Photo Description",
+            "Photo URL",
+            "Connected Activity",
+        ]
+        get_data = lambda item: [item.photo_description, item.url, item.activity.name]
         header = "Photos Table"
+
     sliced_items = items[start:end]
     table = PrettyTable()
     table.field_names = field_names
