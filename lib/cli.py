@@ -25,11 +25,12 @@ def main_menu():
     global last_page
     last_page = main_menu
     clear_terminal()
-    print("Main Menu:\n".center(width))
+    print("Welcome to the Main Menu!".center(width))
     print(
-        "Would you like to:\n\n1:View Activity Menu\n\n2:View Category Menu\n\n3:View Photo Menu\n\n"
+        "\nSelect an option:\n\n1: Access Activity Menu\n2: Access Category Menu\n3: Access Photo Menu\n"
     )
-    menu_option = input("Type 1, 2 , 3, or exit: ").strip()
+    menu_option = input("Enter 1, 2, 3, or type 'exit' to quit: ").strip()
+
     if menu_option.lower() == "exit":
         exit()
     elif menu_option in ["1", "2", "3"]:
@@ -48,11 +49,13 @@ def activities_menu():
     global last_page
     last_page = activities_menu
     clear_terminal()
-    print("Activities Menu:\n".center(width))
+    print("Activity Menu".center(width))
     print(
-        "Would you like to:\n\n1: View activities?\n\n2: Create an activity?\n\n3: View activities based on category?\n\n"
+        "\nWhat would you like to do?\n\n1: View existing activities\n2: Create a new activity\n3: Filter activities by category\n"
     )
-    activity_option = input("Type 1, 2, 3, exit, or back : ").strip()
+    activity_option = input(
+        "Enter 1, 2, 3, 'exit' to quit, or 'back' to return to the main menu: "
+    ).strip()
     if activity_option.lower() == "exit":
         exit()
     elif activity_option.lower() == "back":
@@ -132,8 +135,8 @@ def chosen_activity(chosen_id):
     last_page = view_activities
     activity = session.query(Activity).all()[chosen_id]
     clear_terminal()
-    print(f"You have selected: \n\n{activity}")
-    correct_yn = input("y/n : ").strip()
+    print(f"You have selected the following activity:\n\n{activity}\n\n")
+    correct_yn = input("Is this the activity you were looking for? (y/n): ").strip()
     if correct_yn == "y":
         clear_terminal()
         print(
@@ -167,7 +170,7 @@ def view_activity(chosen_id):
     last_page = view_activities
     display_table(start, end, real_id=True)
     back_exit_or_mm = input(
-        "Type 'back' to go back to view activities table, 'exit' to exit, or 'mm' for main menu: \n\n"
+        "Enter 'back' to return to the activities list, 'exit' to quit, or 'mm' for the main menu: "
     ).strip()
     if back_exit_or_mm == "back":
         view_activities()
@@ -185,37 +188,42 @@ def update_activity_prompt(chosen_id):
     activity = session.query(Activity).all()[chosen_id]
 
     clear_terminal()
-    print(f"You have selected: \n\n{activity}\n")
-    new_name = input("Enter new name or press enter to skip: ").strip()
+    print(f"Currently Selected Activity:\n\n{activity}\n")
+    new_name = input(
+        "Type a new name for this activity or press Enter to keep the current name: "
+    ).strip()
+
     if new_name:
         activity.name = new_name
 
-    new_description = input("Enter new description or press enter to skip: ").strip()
+    new_description = input("Enter new description or press Enter to skip: ").strip()
     if new_description:
         activity.description = new_description
 
-    new_note = input("Enter new note or press enter to skip: ").strip()
+    new_note = input("Enter new note or press Enter to skip: ").strip()
     if new_note:
         activity.notes = new_note
 
-    new_location = input("Enter new location or press enter to skip: ").strip()
+    new_location = input("Enter new location or press Enter to skip: ").strip()
     if new_location:
         activity.location = new_location
 
     new_weather = input(
-        "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press enter to skip: "
+        "Enter new weather condition ['Clear', 'Cloudy', 'Rainy', 'Snowy', 'Windy', 'Foggy', 'Hot', 'Cold', 'Mild', or 'Sunny'] or press Enter to skip: "
     ).strip()
     if new_weather:
         activity.weather = new_weather
 
-    new_date = input("Enter new date or press enter to skip: ").strip()
+    new_date = input("Enter new date or press Enter to skip: ").strip()
     if new_date:
         activity.date = new_date
+    clear_terminal()
     print(activity)
-    print("Would you like to update this activity?")
+    print("\n\nWould you like to update this activity?")
     update_yn = input("y/n: ").strip()
     if update_yn == "y":
         session.commit()
+        clear_terminal()
         print("Activity updated successfully!")
         time.sleep(2)
         main_menu()
@@ -231,8 +239,9 @@ def delete_activity_prompt(chosen_id):
     activity_to_delete = Activity.get_all_activities(session)[chosen_id]
     clear_terminal()
     correct_activity = input(
-        f"Is this the activity you would like to delete? [{activity_to_delete.name}]\n\ny/n: "
+        f"Are you sure you wish to delete the activity: '{activity_to_delete.name}'? [y/n]: "
     )
+
     if correct_activity == "y":
         session.delete(activity_to_delete)
         session.commit()
@@ -247,9 +256,9 @@ def delete_activity_prompt(chosen_id):
 
 def create_activity():
     clear_terminal()
-    print("Create Activity Menu".center(width))
+    print("New Activity Creation".center(width))
     activity_instance = dict()
-    activity_name = input("Input activity name: ").strip()
+    activity_name = input("Enter the name of the activity: ").strip()
     if 0 < len(activity_name) <= 68:
         activity_instance["name"] = activity_name
         activity_description = input("Input activity description: ").strip()
@@ -365,12 +374,11 @@ def view_activities_based_on_category():
     last_page = activities_menu
     clear_terminal()
     categories = session.query(Category).all()
-
     print(
-        f'Here is your current list of categories {[f"{index + 1}:  {category.category_name}" for index,category in enumerate(categories)]}\n\n'
+        f"Available Categories: {[f'{index + 1}: {category.category_name}' for index, category in enumerate(categories)]}\n"
     )
     category = input(
-        'Please select a number that corresponds with a category or "back" for Activities Menu: '
+        'Select a category by its corresponding number or enter "back" to return to the Activities Menu: '
     )
     if category == "back":
         activities_menu()
@@ -459,11 +467,12 @@ def categories_menu():
     global last_page
     last_page = categories_menu
     clear_terminal()
-    print("Categories Menu\n")
+    print("Category Management\n".center(width))
     print(
-        "Would you like to:\n\n1: Create a category\n\n2: Update a category\n\n3: Delete a category\n\n"
+        "Select an option:\n\n1: Create a New Category\n\n2: Modify an Existing Category\n\n3: Remove a Category\n"
     )
-    category_option = input("Type 1, 2, 3, exit, or back : ").strip()
+    category_option = input("Enter 1, 2, or 3, or type 'exit' or 'back': ").strip()
+
     if category_option.lower() == "exit":
         exit()
     elif category_option.lower() == "back":
@@ -486,11 +495,11 @@ def create_category_prompt():
     last_page = categories_menu
     categories = session.query(Category).all()
     print(
-        "Here are your current categories:"
-        + f"{[category.category_name for category in categories]}\n\n"
+        "Existing Categories: "
+        + f"{[category.category_name for category in categories]}\n"
     )
     category_name = input(
-        "Input the new category's name you would like to create or 'back': "
+        "Enter the name for the new category or type 'back': "
     ).strip()
     if not 0 < len(category_name) <= 32:
         print("The category name but be in between 0 and 33 characters.")
@@ -525,11 +534,14 @@ def update_category_prompt():
     last_page = categories_menu
     categories = session.query(Category).all()
     clear_terminal()
-    print(
-        f"Here are your current categories: {[f'{index + 1}: {category.category_name}' for index, category in enumerate(categories)]} \n\n"
-    )
+    print("Current Categories:")
+    print("-" * 19)
+    for index, category in enumerate(categories):
+        print(f"{index + 1}. {category.category_name}")
+    print("\n")
+
     category_to_update = input(
-        "Please type the number corresponding to a category or 'back' to go back: "
+        "Select a category number to update or type 'back' to go back: "
     ).strip()
     if category_to_update == "back":
         categories_menu()
@@ -576,12 +588,14 @@ def delete_category_prompt():
     last_page = categories_menu
     categories_to_delete = session.query(Category).all()
     clear_terminal()
-    print(
-        f"Here are your current categories: {[f'{index + 1}: {category.category_name}' for index, category in enumerate(categories_to_delete)]} \n\n"
-    )
-    to_delete = input(
-        'Which category would you like to delete?\n\nType a number corresponding to a category or "back" to go back to the categories menu: '
-    )
+    print("Current Categories for Deletion:")
+    print("-" * 32)
+    for index, category in enumerate(categories_to_delete):
+        print(f"{index + 1}. {category.category_name}")
+    print("\n")
+
+    to_delete = input("Select a category number to delete or type 'back' to go back: ")
+
     if to_delete.isdigit():
         to_delete = int(to_delete)
         clear_terminal()
@@ -611,15 +625,21 @@ def photo_menu():
     last_page = main_menu
     clear_terminal()
     print("Photo Menu\n\n".center(width))
-    print("Would you like to \n\n1: View Photo Table\n\n")
-    photo_menu_choice = input("Type 1, exit, or back : ")
+    print(
+        "1: View Photo Table, 2: If you're looking to create a new photo, follow the instructions from Activities Table."
+    )
+    print("\n")
+
+    photo_menu_choice = input("Select an option [1,2, exit, back]: ")
     if photo_menu_choice.lower() == "back":
         main_menu()
     elif photo_menu_choice.lower() == "exit":
         exit()
-    elif photo_menu_choice == "1":
+    elif photo_menu_choice in ["1", "2"]:
         if photo_menu_choice == "1":
             view_photo_table()
+        elif photo_menu_choice == "2":
+            view_activities()
         else:
             multi_choice_error()
     else:
@@ -682,7 +702,12 @@ def view_photo_table():
                             y_n_error()
                     elif to_update_delete == "u":
                         update_photo_prompt(photo)
-
+                    else:
+                        multi_choice_error()
+                elif photo_chosen == "n":
+                    view_photo_table()
+                else:
+                    y_n_error()
             else:
                 clear_terminal()
                 print("No photo found with the specified ID.")
@@ -713,10 +738,12 @@ def update_photo_prompt(photo_chosen):
     global last_page
     last_page = view_photo_table
     clear_terminal()
-    new_photo_description = input("Enter new photo description or 'enter' to skip: ")
+    print("Update Photo Information".center(width))
+
+    new_photo_description = input("New description (Press enter to skip): ")
     if new_photo_description:
         photo_chosen.photo_description = new_photo_description
-    new_photo_url = input("Enter new photo URL or 'enter' to skip: ")
+    new_photo_url = input("Enter new photo URL (Press enter to skip): ")
     if new_photo_url:
         photo_chosen.url = new_photo_url
     clear_terminal()
