@@ -5,8 +5,8 @@ from .db.models.activity_category_association import activity_category
 from .helpers.database_utils import Session
 import time
 from prettytable import PrettyTable
-import os
 from datetime import date
+import os
 
 
 session = Session()
@@ -17,7 +17,7 @@ width = os.get_terminal_size().columns
 def start():
     clear_terminal()
     print("Hello and Welcome to your Family Activity Journal!\n".center(width))
-    time.sleep(1)
+    time.sleep(3)
     main_menu()
 
 
@@ -385,14 +385,24 @@ def view_activities_based_on_category():
     elif int(category) in range(1, len(categories) + 1):
         category = int(category)
         category_chosen = categories[category - 1]
+        clear_terminal()
         print(f"You have chosen [{category_chosen.category_name}]")
-        time.sleep(1)
+        time.sleep(1.5)
         display_table(
             start=0,
             end=len(category_chosen.activities),
             category_filter=True,
             category_chosen=category_chosen,
         )
+        i_hate_naming_things = input(
+            "\n\nPress any key and then 'Enter' to go back to the main menu: "
+        )
+        if i_hate_naming_things:
+            main_menu()
+        else:
+            main_menu()
+    else:
+        multi_choice_error()
 
 
 def attach_photo_or_category_to_activity(chosen_index):
@@ -411,7 +421,7 @@ def attach_photo_or_category_to_activity(chosen_index):
         photo_description = input("Please enter the new photo description: ")
         if photo_description:
             photo_url = input("\n\nPlease enter the new photo url : ")
-            if photo_url.split(".")[-1] in ["jpeg", "png", "pdf", "jpg", "heic"]:
+            if is_valid_image(photo_url):
                 new_photo = Photo(photo_description=photo_description, url=photo_url)
                 activity.photos.append(new_photo)
                 session.add(new_photo)
@@ -626,7 +636,7 @@ def photo_menu():
     clear_terminal()
     print("Photo Menu\n\n".center(width))
     print(
-        "1: View Photo Table, 2: If you're looking to create a new photo, follow the instructions from Activities Table."
+        "1: View Photo Table\n\n2: If you're looking to create a new photo, follow the instructions in Activities Table. Entering '2' will take you there."
     )
     print("\n")
 
@@ -744,7 +754,7 @@ def update_photo_prompt(photo_chosen):
     if new_photo_description:
         photo_chosen.photo_description = new_photo_description
     new_photo_url = input("Enter new photo URL (Press enter to skip): ")
-    if new_photo_url:
+    if new_photo_url and is_valid_image(new_photo_url):
         photo_chosen.url = new_photo_url
     clear_terminal()
     if new_photo_description or new_photo_url:
